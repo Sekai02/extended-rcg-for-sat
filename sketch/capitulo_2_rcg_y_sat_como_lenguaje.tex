@@ -1,0 +1,583 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\theoremstyle{definition}
+\newtheorem{definicion}{Definición}[chapter]
+\theoremstyle{plain}
+\newtheorem{teorema}{Teorema}[chapter]
+\newtheorem{lema}{Lema}[chapter]
+\theoremstyle{remark}
+\newtheorem{ejemplo}{Ejemplo}[chapter]
+
+\begin{document}
+
+\setcounter{chapter}{1}
+\chapter{Gramáticas de concatenación de rango y el \textit{SAT} como lenguaje formal}
+\label{cap:rcg-sat}
+
+En este capítulo se presentan las gramáticas de concatenación de rango
+(RCG), formalismo central de este trabajo, se analizan sus principales
+propiedades y limitaciones, y se revisan los antecedentes directos que
+abordan el problema de la satisfacibilidad booleana a través de
+formalismos de la teoría de lenguajes formales. Los conceptos básicos
+sobre alfabetos, cadenas, gramáticas, autómatas, complejidad
+computacional y $SAT$ utilizados en este capítulo se presentaron en el
+capítulo~\ref{cap:preliminares}.
+
+\section{Gramáticas de concatenación de rango}
+\label{sec:rcg}
+
+Las gramáticas de concatenación de rango ($RCG$) [REF] son
+un formalismo de gramáticas desarrollado en 1988 como una propuesta de
+Pierre Boullier, un investigador en el campo de la lingüística
+computacional. Su objetivo principal era proporcionar un modelo más
+general y expresivo que las gramáticas libres del contexto para describir
+lenguajes. Las RCG fueron diseñadas con el fin de analizar propiedades y
+características del lenguaje natural, como los números chinos y el orden
+aleatorio de algunas palabras alemanas [REF].
+
+\subsection{Presentación intuitiva}
+
+En esta sección se presentan nociones sobre la sustitución de rango y las
+derivaciones de las RCG, aspectos que sirven de base para los conceptos
+y definiciones relacionados con las gramáticas de concatenación de rango.
+
+A los no terminales de esta gramática se les llama \textbf{predicados} y
+cada predicado tiene un conjunto de argumentos. A la cantidad de
+argumentos de un predicado se le denomina \textbf{aridad}.
+
+Por ejemplo, $A(X, Y)$ representa el no terminal (predicado) $A$, que
+tiene como argumentos $X$ e $Y$. En este caso, la aridad de $A$ es $2$.
+
+Cada argumento de los predicados puede estar formado por variables y
+terminales. En el caso anterior, $X$ e $Y$ son variables. Por convenio,
+las variables se denotan por letras mayúsculas del final del alfabeto, y
+los terminales, como es usual, con letras minúsculas. Con este convenio,
+el siguiente predicado: $B(aX, XY, abZ)$, tiene aridad $3$. Su primer
+argumento está formado por el terminal $a$ y la variable $X$. El segundo
+argumento está formado por la concatenación de las variables $X$ e $Y$.
+El tercer argumento está formado por la concatenación de los terminales
+$a$, $b$ y la variable $Z$.
+
+Cada predicado reconoce un vector de cadenas que tiene como dimensión la
+aridad del predicado y cada cadena del vector se asocia a un argumento
+del predicado.
+
+Por ejemplo, si al predicado $A(X, Y)$ se le asocia el vector $[abc, d]$,
+al primer argumento de $A$ se le asigna la cadena $abc$ y al segundo la
+cadena $d$. Esto significa que $X = abc$ y que $Y = d$.
+
+Por otro lado, si al predicado $B(aX, XY, abZ)$ se le asigna el vector
+$[aa, de, abcc]$, al primer argumento de $B$ se le asigna la cadena $aa$,
+al segundo $de$ y al tercero $abcc$. Es decir, $aX = aa$, $XY = de$ y
+$abZ = abcc$. En el caso del primer argumento, como $X$ es una variable
+y se tiene que $aX = aa$, entonces el único valor que puede tomar $X$ es
+$X = a$. Algo similar ocurre en el caso del tercer elemento del vector:
+como $abZ = abcc$, para que se cumpla esa igualdad, el único valor
+posible para $Z$ es $Z = cc$. En el caso del segundo argumento, las
+variables $X$ e $Y$ deben tomar valores de forma que se cumpla la
+igualdad $XY = de$, y eso se puede hacer de tres formas: $X = d$,
+$Y = e$; $X = de$, $Y = \varepsilon$; y $X = \varepsilon$, $Y = de$.
+
+Por otro lado, si el predicado $B(aX, XY, abZ)$ recibe el vector
+$[bb, de, abcc]$, entonces cuando se tiene que $aX = bb$, $X$ no puede
+tomar ningún valor porque el terminal de $b$ no coincide con el no
+terminal $a$ que se encuentra como prefijo del argumento $aX$.
+
+A las producciones de esta gramática se les denomina \textbf{cláusulas}.
+La parte izquierda de la producción siempre está formada por un único no
+terminal y en la parte derecha, puede existir cualquier cantidad de no
+terminales con sus respectivos argumentos, o la cadena vacía. Un ejemplo
+de cláusula puede ser la siguiente:
+\[
+  A(XYZ, W) \to B(X) C(XY, Z) D(W).
+\]
+
+La regla anterior tiene el siguiente significado: el no terminal $A$
+recibe un vector de dimensión $2$. A partir de las cadenas del vector,
+se le asigna valores a las variables $X$, $Y$, $Z$ y $W$, y con esos
+valores construye los vectores que recibirán los no terminales $B$, $C$
+y $D$.
+
+Este proceso se puede ilustrar con un ejemplo en el que el no terminal
+$A$ reciba el vector de cadenas $[abc, d]$.
+
+El primer paso es asignar las cadenas del vector a los argumentos del no
+terminal. El primer argumento de $A$ sería $abc$ y el segundo, $d$.
+Como el primer argumento de $A$ está definido como $XYZ$ y el segundo
+como $W$, debe cumplirse que $XYZ = abc$ y $W = d$. Esto significa que
+las variables $X$, $Y$ y $Z$ deben tomar todos los posibles valores de
+forma que su concatenación sea $abc$, y que $W$ solo puede tomar el valor
+$d$. En el cuadro~\ref{tab:valores-xyzw} se muestran los posibles
+valores que pueden tomar las variables $X$, $Y$, $Z$ y $W$ a partir del
+vector de entrada.
+
+\begin{table}[ht]
+  \centering
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    $X$ & $Y$ & $Z$ & $W$ \\ \hline
+    $a$ & $b$ & $c$ & $d$ \\ \hline
+    $ab$ & $\varepsilon$ & $c$ & $d$ \\ \hline
+    $ab$ & $c$ & $\varepsilon$ & $d$ \\ \hline
+    $abc$ & $\varepsilon$ & $\varepsilon$ & $d$ \\ \hline
+    $\varepsilon$ & $ab$ & $c$ & $d$ \\ \hline
+    $\varepsilon$ & $abc$ & $\varepsilon$ & $d$ \\ \hline
+    $\varepsilon$ & $\varepsilon$ & $abc$ & $d$ \\ \hline
+    $a$ & $\varepsilon$ & $bc$ & $d$ \\ \hline
+    $\vdots$ & $\vdots$ & $\vdots$ & $d$ \\ \hline
+    $a$ & $bc$ & $\varepsilon$ & $d$ \\ \hline
+  \end{tabular}
+  \caption{Posibles valores de las variables $X$, $Y$, $Z$ y $W$.}
+  \label{tab:valores-xyzw}
+\end{table}
+
+Para seguir con el ejemplo, suponga que los valores de $X$, $Y$ y $Z$
+son $X = ab$, $Y = \varepsilon$ y $Z = c$.
+
+A partir de esta asignación se construyen los vectores con los que se
+evalúan los no terminales de su parte derecha: $B(X) C(Y, Z) D(W)$.
+Como $X = ab$, $Y = \varepsilon$, $Z = c$ y $W = d$, la parte derecha se
+evaluaría con los vectores: $[ab]$, $[\varepsilon, c]$, $[d]$ y como
+resultado se tiene la derivación $B(ab) C(\varepsilon, c) D(d)$.
+
+El proceso de asignar los vectores a los argumentos, identificar los
+valores de las variables e instanciar las partes derechas se repite en
+cada uno de los predicados del lado derecho de la cláusula.
+
+Existe otro tipo de producciones en las que, para determinados valores
+de sus argumentos, un no terminal deriva en $\varepsilon$. Por ejemplo:
+\[
+  B(ab) \to \varepsilon, \qquad
+  C(\varepsilon, cab) \to \varepsilon, \qquad
+  D(d) \to \varepsilon.
+\]
+
+La forma general de estas producciones es $A(X_1, \dots, X_n) \to
+\varepsilon$.
+
+Un no terminal reconoce un vector de cadenas si existe una asignación de
+las variables en sus argumentos que en algún momento derivan en la
+cadena vacía. En el caso de $B(ab) \to \varepsilon$, el no terminal $B$
+reconoce la cadena $ab$.
+
+Si se tiene un conjunto de producciones de la forma:
+\begin{enumerate}
+  \item $A(XYZ, W) \to B(X) C(XY, Z) D(W)$
+  \item $B(ab) \to \varepsilon$
+  \item $C(\varepsilon, cab) \to \varepsilon$
+  \item $D(d) \to \varepsilon$
+\end{enumerate}
+entonces el no terminal $A$ reconoce el vector $[abc, d]$, porque con la
+asignación de valores $X = ab$, $Y = \varepsilon$, $Z = c$ y $W = d$,
+$A$ derivaría en $B(ab) C(\varepsilon, cab) D(d)$, y cada uno de los
+predicados $B(ab)$, $C(\varepsilon, cab)$ y $D(d)$ deriva en la cadena
+vacía.
+
+Un predicado no reconoce un vector de cadenas cuando para ninguna
+asignación de variables se deriva en la cadena vacía.
+
+\subsection{Definiciones formales}
+
+Dadas estas nociones, a continuación se presentan las principales
+definiciones de las gramáticas de concatenación de rango.
+
+\begin{definicion}
+Un \textbf{rango} es una tupla $(i, j)$ que representa un intervalo de
+posiciones en una cadena, donde $i$ y $j$ son enteros no negativos tales
+que $i \le j$.
+\end{definicion}
+
+Por ejemplo, si los índices son indexados en $0$, para la cadena $abcd$,
+el rango $(1, 2)$ representa la subcadena $bc$.
+
+\begin{definicion}
+Una \textbf{gramática de concatenación de rango}\footnote{En la
+literatura este tipo de RCG se toma como gramática de concatenación de
+rango positiva, pero como es la única que se usa en este trabajo se le
+llama solo gramática de concatenación de rango.} se define como una
+$5$-tupla:
+\[
+  G = (N, T, V, P, S),
+\]
+donde:
+\begin{itemize}
+  \item $N$: Es un conjunto finito de \textbf{predicados o símbolos no
+    terminales}: Cada predicado tiene una \textbf{aridad}, que indica la
+    dimensión del vector de cadenas que reconoce y cada cadena del
+    vector se asocia a un argumento del predicado.
+  \item $T$: Es un conjunto finito de \textbf{símbolos terminales}.
+  \item $V$: Es un conjunto finito de \textbf{variables}.
+  \item $P$: Es un conjunto finito de \textbf{cláusulas}, de la forma:
+    \[
+      A(x_1, x_2, \dots, x_k) \to B_1(y_{1,1}, y_{1,2}, \dots, y_{1,m_1})
+      \dots B_n(y_{n,1}, y_{n,2}, \dots, y_{n,m_n}),
+    \]
+    donde $A, B_i \in N$, $x_i, y_{i,j} \in (V \cup T)^*$, y $k$ es la
+    aridad de $A$.
+  \item $S \in N$: Es el \textbf{predicado inicial} de la gramática, que
+    siempre tiene \textbf{aridad} $1$.
+\end{itemize}
+\end{definicion}
+
+Por ejemplo, a continuación se muestra una gramática de concatenación de
+rango:
+\[
+  G_{\mathrm{copy}}^3 = (N, T, V, P, S),
+\]
+donde:
+\begin{itemize}
+  \item $N = \{A, S\}$.
+  \item $T = \{a, b, c\}$.
+  \item $V = \{X, Y, Z\}$.
+  \item El conjunto de cláusulas $P$ es el siguiente:
+    \begin{enumerate}
+      \item $S(XYZ) \to A(X, Y, Z)$
+      \item $A(aX, aY, aZ) \to A(X, Y, Z)$
+      \item $A(bX, bY, bZ) \to A(X, Y, Z)$
+      \item $A(cX, cY, cZ) \to A(X, Y, Z)$
+      \item $A(\varepsilon, \varepsilon, \varepsilon) \to \varepsilon$
+    \end{enumerate}
+  \item El símbolo inicial es $S$.
+\end{itemize}
+
+Las RCG, a diferencia de las gramáticas definidas en la
+sección~\ref{sec:gramaticas} del capítulo~\ref{cap:preliminares} no
+generan cadenas, su funcionamiento se basa en reconocer si una cadena
+pertenece o no al lenguaje.
+
+\begin{definicion}
+Una \textbf{sustitución de rango} es un mecanismo que reemplaza una
+variable por un rango de la cadena, respetando la estructura del
+argumento que se asocia a la cadena que se reconoce.
+\end{definicion}
+
+Por ejemplo, dado el predicado $A(Xa)$ donde $X \in V$ y $a \in T$, la
+estructura del argumento de $A$ es una variable $X$ seguida del terminal
+$a$. Si el no terminal $A$ recibe la cadena $baa$, $X$ se puede asociar
+con el rango $ba$ de la cadena original porque si $X = ba$, entonces
+$Xa = baa$. Por otro lado, la variable $X$ no puede tomar el valor
+$baa$, porque ningún carácter de la cadena de entrada coincidiría con el
+terminal $a$. De manera similar, $X$ tampoco puede tomar el valor $b$
+porque el valor que se asigna a $X$ no permite que el argumento $Xa$
+cubra la cadena completa.
+
+\begin{definicion}
+Las \textbf{gramáticas de concatenación de rango simple} ($SRCG$) son un
+subconjunto de las RCG que restringen la forma de las cláusulas de
+producción. Una RCG $G$ es \textbf{simple} si los argumentos en el lado
+derecho de una cláusula son variables distintas, y todas estas variables
+(y no otras) aparecen una sola vez en los argumentos del lado izquierdo.
+\end{definicion}
+
+Este es un caso particular de las RCG el cual se usa en
+[REF] para describir el orden de las variables de una
+fórmula booleana.
+
+\subsection{Proceso de derivación y reconocimiento}
+
+La idea principal para realizar una derivación en la cláusula
+\[
+  A(x_1, x_2, \dots, x_k) \to B_1(y_{1,1}, y_{1,2}, \dots, y_{1,m_1})
+  \dots B_n(y_{n,1}, y_{n,2}, \dots, y_{n,m_n}),
+\]
+de una RCG, se basa en tomar el vector de cadenas $[w_1, w_2, \dots,
+w_k]$ que recibe el predicado $A$ y asociar cada elemento del vector al
+argumento correspondiente: $w_1$ se asocia al argumento $x_1$, $w_2$ se
+asocia al argumento $x_2$ y así hasta que $w_k$ se asocia a $x_k$.
+
+Después de asociar los elementos del vector a los argumentos, se
+realizan todas las posibles sustituciones de rango para cada argumento y
+se asocia un rango a cada variable del predicado izquierdo.
+
+A partir de los valores de las variables obtenidos en el paso anterior
+se construyen vectores de cadenas con los que se instancian las
+variables de los predicados del lado derecho de la cláusula.
+
+Un vector de cadenas se reconoce por un predicado $A$ si existe una
+secuencia de derivaciones que comienza en $A$ y termina en la cadena
+vacía.
+
+A continuación se presenta un ejemplo de reconocimiento de la cadena
+$abcabcabc$ por la gramática $G_{\mathrm{copy}}^3$ presentada
+anteriormente.
+
+La cadena $abcabcabc$ se reconoce por $G_{\mathrm{copy}}^3$, ya que
+$S(abcabcabc)$ se puede derivar de la siguiente manera:
+\[
+  S(abcabcabc) \to A(abc, abc, abc) \to A(bc, bc, bc) \to A(c, c, c)
+  \to A(\varepsilon, \varepsilon, \varepsilon) \to \varepsilon.
+\]
+
+A continuación se muestran estas derivaciones paso a paso.
+
+\begin{itemize}
+  \item \textbf{Primer paso:} En la primera cláusula
+    $S(XYZ) \to A(X, Y, Z)$, existe una sustitución de rango que asocia
+    las variables $X$, $Y$, $Z$ a los valores $X = abc$, $Y = abc$ y
+    $Z = abc$. De esta forma se deriva en el predicado $A(abc, abc,
+    abc)$.
+  \item \textbf{Segundo paso:} En la segunda cláusula
+    $A(aX, aY, aZ) \to A(X, Y, Z)$, existe una sustitución de rango que
+    asocia las variables $X$, $Y$, $Z$ a los valores $X = bc$, $Y = bc$
+    y $Z = bc$. Con estos valores se deriva en el predicado
+    $A(bc, bc, bc)$.
+  \item \textbf{Tercer paso:} En la tercera cláusula
+    $A(bX, bY, bZ) \to A(X, Y, Z)$, existe una sustitución de rango que
+    asocia las variables $X$, $Y$, $Z$ a los valores $X = c$, $Y = c$ y
+    $Z = c$. Con estos valores se deriva en el predicado $A(c, c, c)$.
+  \item \textbf{Cuarto paso:} En la cuarta cláusula
+    $A(cX, cY, cZ) \to A(\varepsilon, \varepsilon, \varepsilon)$,
+    existe una sustitución de rango que asocia las variables $X$, $Y$,
+    $Z$ a los valores $X = \varepsilon$, $Y = \varepsilon$ y
+    $Z = \varepsilon$. Con estos valores se deriva en el predicado
+    $A(\varepsilon, \varepsilon, \varepsilon)$.
+  \item \textbf{Quinto paso:} Finalmente en el último paso se toma la
+    última cláusula $A(\varepsilon, \varepsilon, \varepsilon) \to
+    \varepsilon$ que deriva en la cadena vacía, por lo que de esta
+    manera se reconoce la cadena $abcabcabc$.
+\end{itemize}
+
+\section{Propiedades y limitaciones de las RCG}
+\label{sec:propiedades-rcg}
+
+La motivación fundamental detrás de la creación de las RCG fue crear un
+formalismo modular. Esto significa que las principales operaciones sobre
+conjuntos: unión, intersección y complemento son cerradas para dicho
+formalismo [REF]. Esta es precisamente la limitación de
+las gramáticas libres del contexto que se propone suplir con las RCG
+para el procesamiento del lenguaje natural [REF]. En esta
+sección se describen las principales propiedades que demuestran que las
+RCG son un formalismo modular, las propiedades que demuestran que las
+RCG no son cerradas bajo transducción finita, y el problema de la
+palabra para las RCG.
+
+\begin{teorema}
+Las RCG son \textbf{cerradas bajo unión, intersección y complemento}:
+la unión y la intersección de $2$ RCG da como resultado un formalismo
+que pertenece a las RCG, mientras que el formalismo resultante del
+complemento de una RCG es también una RCG [REF].
+\end{teorema}
+
+\begin{teorema}
+Las RCG \textbf{no son cerradas bajo homomorfismo}: dada una RCG $G$, el
+homomorfismo de un lenguaje que se reconoce por $G$ necesariamente no se
+reconoce por una RCG [REF].
+\end{teorema}
+
+\begin{teorema}
+Las RCG \textbf{no son cerradas bajo transducción finita}: dada una RCG
+$G$, la transducción finita de un lenguaje que se reconoce por $G$
+necesariamente no se reconoce por una RCG.
+\end{teorema}
+
+La no clausura bajo transducción finita es consecuencia de la no
+clausura bajo homomorfismo, porque un homomorfismo es un transductor
+finito de un solo estado y tantas transiciones hacia ese mismo estado
+como transformaciones de símbolos defina el homomorfismo.
+
+En cuanto al poder expresivo, las RCG son estrictamente más expresivas
+que las gramáticas libres del contexto: reconocen lenguajes como
+$L_{\mathrm{copy}}^k = \{ w^k \mid w \in Z^* \}$ para todo $k \ge 2$,
+que son dependientes del contexto y no libres del contexto
+[REF]. En particular, el lenguaje $L_{\mathrm{copy}}^3$ que
+se reconoce por la gramática $G_{\mathrm{copy}}^3$ del ejemplo anterior
+ilustra este poder expresivo.
+
+\subsection{Complejidad del problema de la palabra}
+
+En [REF] se menciona que en la mayoría de los casos el
+problema de la palabra para las RCG es polinomial y se resuelve mediante
+un algoritmo de memorización sobre las cadenas asignadas a los argumentos
+de los predicados de la RCG. Como la cantidad máxima de rangos de la
+cadena es $n^2$ y la máxima aridad de un predicado es constante, este
+proceso de memorización cuenta con una cantidad polinomial de estados, y
+tiene una complejidad de $O(|P| n^{2h(l+1)})$ donde $h$ es la máxima
+aridad en un predicado, $l$ es la máxima cantidad de predicados en el
+lado derecho de una cláusula y $n$ es la longitud de la cadena que se
+reconoce.
+
+Sin embargo, existen casos en los que el problema de la palabra no es
+polinomial. El algoritmo de reconocimiento anterior utiliza un proceso
+de memorización sobre los rangos de la cadena. La idea fundamental para
+esto, y lo que acota la complejidad del algoritmo, es que la cantidad de
+estados asociados a la memorización es igual a la cantidad de rangos de
+la cadena, el cual es polinomial con respecto a la longitud de la
+cadena. Esto se cumple siempre que todos los argumentos que reciben
+todos los no terminales de la gramática sean subcadenas de la cadena
+original que se está analizando. Existen gramáticas de concatenación de
+rango en que esto no ocurre.
+
+La siguiente RCG reconoce el lenguaje $L = \{ w \mid w \in \{0, 1\}^* \}$.
+Esta gramática de concatenación de rango no tiene uso real porque
+existen otras RCG que reconocen el mismo lenguaje, pero ilustra una RCG
+donde se generan cadenas que no son subcadenas de la cadena de entrada
+durante el proceso de reconocimiento.
+\[
+  G_e = (N, T, V, P, S),
+\]
+donde:
+\begin{itemize}
+  \item $N = \{A, B, \mathrm{Eq}, S\}$.
+  \item $T = \{0, 1\}$.
+  \item $V = \{X, Y\}$.
+  \item El conjunto de cláusulas $P$ es el siguiente:
+    \begin{enumerate}
+      \item $S(X) \to A(X, X)$
+      \item $A(1X, Y) \to B(X, 0, Y)$
+      \item $A(1X, Y) \to B(X, 1, Y)$
+      \item $A(0X, Y) \to B(X, 1, Y)$
+      \item $A(0X, Y) \to B(X, 0, Y)$
+      \item $B(1X, Y, Z) \to B(X, 1Y, Z)$
+      \item $B(1X, Y, Z) \to B(X, 0Y, Z)$
+      \item $B(0X, Y, Z) \to B(X, 0Y, Z)$
+      \item $B(0X, Y, Z) \to B(X, 1Y, Z)$
+      \item $B(\varepsilon, Y, Z) \to \mathrm{Eq}(Y, Z)$
+    \end{enumerate}
+  \item El símbolo inicial es $S$.
+\end{itemize}
+
+Para procesar una cadena $w$, la gramática anterior genera todas las
+posibles cadenas $q$, tales que $|w| = |q|$ y luego comprueba si
+$w = q$. Sin embargo, la complejidad del reconocimiento de $G_e$ es
+mayor que $2^n$ (con $n$ igual al tamaño de la cadena de entrada), ya
+que esta es la cantidad de cadenas posibles que puede recibir el segundo
+argumento del predicado $B$, porque la gramática es ambigua y en cada
+derivación de $B$ existen $2$ posibles decisiones: se añade un $1$
+delante del valor de la $Y$ o se añade un $0$.
+
+\subsection{Diferencias entre RCG y SRCG}
+
+Las SRCG son un subconjunto estricto de las RCG. La restricción que
+impone la definición de SRCG (argumentos del lado derecho formados por
+variables distintas que aparecen exactamente una vez en el lado
+izquierdo) garantiza que durante una derivación todos los argumentos
+que reciben los predicados sean subcadenas de la cadena original, por
+lo que las SRCG siempre admiten un algoritmo de reconocimiento
+polinomial. Las RCG generales, en cambio, pueden describir lenguajes
+más expresivos, pero a costa de perder esta garantía, como ilustra el
+ejemplo anterior $G_e$.
+
+\subsection{Limitaciones de las RCG para representar el $SAT$}
+
+La clausura de las RCG bajo unión, intersección y complemento, y su
+capacidad de describir lenguajes más allá de los libres del contexto,
+las convierte en un candidato natural para representar el $SAT$ como un
+problema de la palabra. Sin embargo, el hecho de que el problema de la
+palabra para las RCG no sea polinomial en general impone una limitación
+fundamental: una RCG que reconozca el lenguaje de todas las fórmulas
+booleanas satisfacibles puede requerir un algoritmo de reconocimiento
+no polinomial, como muestra el trabajo de Gómez Molina
+[REF], que se resume en la sección siguiente. Este hecho
+motiva la búsqueda de extensiones o restricciones de las RCG que
+permitan reconocer el lenguaje del $SAT$ con mejores propiedades
+computacionales, línea en la que se inscribe el presente trabajo.
+
+\section{Antecedentes: $SAT$ mediante formalismos de teoría de
+lenguajes}
+\label{sec:antecedentes}
+
+En la Facultad de Matemática y Computación de la Universidad de La
+Habana se han desarrollado varios trabajos que estudian el $SAT$
+mediante formalismos de la teoría de lenguajes, buscando resolver
+instancias específicas del problema en tiempo polinomial o caracterizar
+su complejidad a través de lenguajes formales. La idea general común a
+estos trabajos consiste en codificar una fórmula booleana como una
+cadena y plantear el $SAT$ como un problema de la palabra o del vacío
+sobre un lenguaje formal asociado.
+
+\subsection{$SAT$ libre del contexto (SATCF)}
+
+El primer antecedente directo es el trabajo de Fernández Arias
+[REF], donde se aborda una variante del $SAT$ mediante
+gramáticas libres del contexto. La idea principal consta de tres
+partes: asumir que todas las variables en la fórmula son distintas,
+construir un autómata finito que reconozca cadenas de $0$ y $1$ que
+hagan verdadera esa fórmula (asumiendo que todas las variables son
+distintas), y por último intersectar ese lenguaje regular con un
+lenguaje libre del contexto que garantice que todas las instancias de
+la misma variable tengan el mismo valor. Luego de esos tres pasos, se
+obtiene un lenguaje libre del contexto formado por las cadenas de $0$
+y $1$ que satisfacen la fórmula y que además respeta los valores de las
+variables duplicadas.
+
+Para determinar si la fórmula es satisfacible o no, se comprueba si el
+lenguaje es vacío, que en el caso de los lenguajes libres del contexto
+tiene una complejidad $O(n)$. Todo el algoritmo descrito anteriormente
+tiene una complejidad que es $O(n^3)$, donde $n$ es el tamaño de la
+fórmula booleana.
+
+El autómata finito diseñado en [REF] se denominó
+\textbf{autómata booleano}. La idea detrás de este es representar las
+reglas de la lógica proposicional en las transiciones entre los estados
+de un autómata finito, donde cada estado del autómata representa un
+valor de verdad positivo o negativo con hasta ese momento (solo tomando
+las instancias de las variables asociadas a los caracteres reconocidos)
+la fórmula se evalúa positiva o negativa respectivamente.
+
+Esta estrategia permite resolver en tiempo polinomial instancias del
+$SAT$ con estructura restringida (fórmulas donde cada variable aparece
+una cantidad acotada de veces o con ciertas restricciones sobre el
+orden de las variables en las cláusulas). Se denota esta clase como
+\textbf{SATCF}.
+
+\subsection{$SAT$ con gramáticas de concatenación de rango simple
+(SATSRC)}
+
+En [REF] se generaliza la idea de [REF],
+pero esta vez el autómata booleano asociado a la fórmula booleana se
+intersecta con una gramática de concatenación de rango simple
+[REF], lo cual permite ampliar el conjunto de fórmulas
+booleanas que pueden resolverse usando esta estrategia. Las gramáticas
+de concatenación de rango simple son un caso particular de las
+gramáticas de concatenación de rango.
+
+La razón por la cual SATSRC generaliza SATCF es que las SRCG son un
+superconjunto estricto de las gramáticas libres del contexto: toda
+CFG puede expresarse como una SRCG con predicados de aridad $1$, pero
+existen SRCG que describen lenguajes no libres del contexto. Por tanto,
+el conjunto de fórmulas cuyo orden de variables puede capturarse
+mediante una SRCG es estrictamente mayor que el de aquellas que admiten
+una descripción mediante una CFG.
+
+\subsection{Trabajos con SMG y el lenguaje de las fórmulas satisfacibles}
+
+En la misma línea se han explorado las \textbf{gramáticas matriciales
+simples} (SMG) como formalismo intermedio para representar instancias
+del $SAT$. Estos trabajos se mencionan aquí solo para ubicar el
+contexto, ya que no constituyen un antecedente directo del enfoque
+específico de este trabajo.
+
+El antecedente más cercano es el trabajo de Gómez Molina
+[REF], que aborda el problema desde una perspectiva
+complementaria a los anteriores. En vez de resolver el problema del
+vacío para el lenguaje de todas las interpretaciones que hacen verdadera
+a una fórmula dada, en [REF] se construye el lenguaje de
+todas las fórmulas booleanas satisfacibles, denotado $L_{S\text{-}SAT}$,
+y para determinar si una instancia del $SAT$ es satisfacible se
+comprueba si su representación como cadena pertenece a ese lenguaje.
+
+En [REF] se proponen dos estrategias para construir
+$L_{S\text{-}SAT}$. La primera utiliza una transducción finita de una
+variante del lenguaje \textit{Copy} sobre el alfabeto $\{0, 1, d\}$,
+denotada $L_{0, 1, d}$. Como resultado se demuestra que el problema de
+la palabra para todos los formalismos que generen la variante del
+lenguaje \textit{Copy} y sean cerrados bajo transducción finita es
+$NP$-Duro. La segunda estrategia construye directamente una RCG,
+denotada $G_{S\text{-}SAT}$, que reconoce $L_{S\text{-}SAT}$. A partir
+de esta gramática se demuestra que las RCG reconocen todos los
+problemas de la clase $NP$, en su representación como lenguaje formal.
+
+La gramática $G_{S\text{-}SAT}$ constituye un ejemplo de una RCG con
+problema de la palabra no polinomial: el algoritmo de reconocimiento
+que se obtiene al aplicar el método estándar tiene una complejidad
+$O(2^n m^2)$, donde $n$ es la cantidad de variables y $m$ la longitud
+de la cadena de entrada. Esta limitación es precisamente la que motiva
+las extensiones que se estudian en los capítulos siguientes del
+presente trabajo.
+
+\end{document}
