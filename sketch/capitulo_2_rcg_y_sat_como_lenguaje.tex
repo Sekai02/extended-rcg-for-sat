@@ -16,17 +16,16 @@
 \begin{document}
 
 \setcounter{chapter}{1}
-\chapter{Gramáticas de concatenación de rango y el \textit{SAT} como lenguaje formal}
+\chapter{Gramáticas de concatenación de rango y el SAT como lenguaje formal}
 \label{cap:rcg-sat}
 
 En este capítulo se presentan las gramáticas de concatenación de rango
-(RCG), formalismo central de este trabajo, se analizan sus principales
-propiedades y limitaciones, y se revisan los antecedentes directos que
-abordan el problema de la satisfacibilidad booleana a través de
-formalismos de la teoría de lenguajes formales. Los conceptos básicos
-sobre alfabetos, cadenas, gramáticas, autómatas, complejidad
-computacional y $SAT$ utilizados en este capítulo se presentaron en el
-capítulo~\ref{cap:preliminares}.
+(RCG), formalismo de base sobre el que se construye la propuesta de
+este trabajo, se analizan sus principales propiedades y limitaciones, y
+se revisan los antecedentes directos que abordan el problema de la
+satisfacibilidad booleana a través de formalismos de la teoría de
+lenguajes formales. Los conceptos básicos utilizados en este capítulo
+se presentaron en el capítulo anterior.
 
 \section{Gramáticas de concatenación de rango}
 \label{sec:rcg}
@@ -245,10 +244,9 @@ donde:
   \item El símbolo inicial es $S$.
 \end{itemize}
 
-Las RCG, a diferencia de las gramáticas definidas en la
-sección~\ref{sec:gramaticas} del capítulo~\ref{cap:preliminares} no
-generan cadenas, su funcionamiento se basa en reconocer si una cadena
-pertenece o no al lenguaje.
+Las RCG, a diferencia de las gramáticas presentadas en el capítulo
+anterior, no generan cadenas; su funcionamiento se basa en reconocer
+si una cadena pertenece o no al lenguaje.
 
 \begin{definicion}
 Una \textbf{sustitución de rango} es un mecanismo que reemplaza una
@@ -450,134 +448,84 @@ argumento del predicado $B$, porque la gramática es ambigua y en cada
 derivación de $B$ existen $2$ posibles decisiones: se añade un $1$
 delante del valor de la $Y$ o se añade un $0$.
 
-\subsection{Diferencias entre RCG y SRCG}
+\subsection{Limitaciones de las RCG para una representación directa y
+eficiente del SAT}
 
-Las SRCG son un subconjunto estricto de las RCG. La restricción que
-impone la definición de SRCG (argumentos del lado derecho formados por
-variables distintas que aparecen exactamente una vez en el lado
-izquierdo) garantiza que durante una derivación todos los argumentos
-que reciben los predicados sean subcadenas de la cadena original, por
-lo que las SRCG siempre admiten un algoritmo de reconocimiento
-polinomial. Las RCG generales, en cambio, pueden describir lenguajes
-más expresivos, pero a costa de perder esta garantía, como ilustra el
-ejemplo anterior $G_e$.
+En esta sección se analizan las limitaciones y características de las
+RCG que las hacen subóptimas para una representación directa y
+eficiente del $SAT$ como problema de la palabra. La mayoría de ellas
+se observan en la construcción de $L_{S\text{-}SAT}$ y
+$G_{S\text{-}SAT}$ presentada en [REF], trabajo que sirve como punto
+de partida para esta discusión.
 
-\subsection{Limitaciones de las RCG para representar el $SAT$}
+En dicho trabajo se construye primero el lenguaje $L_{S\text{-}SAT}$
+aplicando un transductor finito sobre un lenguaje auxiliar. Por el
+Teorema~2.3, la imagen resultante no tiene por qué ser una RCG. Por
+este motivo, la construcción se rehace en un segundo paso mediante
+una RCG directa para $L_{S\text{-}SAT}$.
 
-La clausura de las RCG bajo unión, intersección y complemento, y su
-capacidad de describir lenguajes más allá de los libres del contexto,
-las convierte en un candidato natural para representar el $SAT$ como un
-problema de la palabra. Sin embargo, el hecho de que el problema de la
-palabra para las RCG no sea polinomial en general impone una limitación
-fundamental: una RCG que reconozca el lenguaje de todas las fórmulas
-booleanas satisfacibles puede requerir un algoritmo de reconocimiento
-no polinomial, como muestra el trabajo de Gómez Molina
-[REF], que se resume en la sección siguiente. Este hecho
-motiva la búsqueda de extensiones o restricciones de las RCG que
-permitan reconocer el lenguaje del $SAT$ con mejores propiedades
-computacionales, línea en la que se inscribe el presente trabajo.
+El propio autor deja planteado como problema abierto determinar qué
+propiedades de las RCG impiden esta clausura y si puede definirse una
+extensión del formalismo que la recupere.
 
-\section{Antecedentes: $SAT$ mediante formalismos de teoría de
-lenguajes}
-\label{sec:antecedentes}
+En la sección~\ref{sec:propiedades-rcg}, mediante la gramática $G_e$,
+se mostró que existen RCG cuyo problema de la palabra no es
+polinomial. La gramática $G_{S\text{-}SAT}$ es otro ejemplo de este
+fenómeno, ahora en el contexto del $SAT$. En [REF] se demuestra que
+el reconocimiento de $G_{S\text{-}SAT}$ mediante el algoritmo estándar
+tiene complejidad $O(2^n m^2)$, donde $n$ es la cantidad de variables
+de la fórmula y $m$ la longitud de la cadena de entrada.
 
-En la Facultad de Matemática y Computación de la Universidad de La
-Habana se han desarrollado varios trabajos que estudian el $SAT$
-mediante formalismos de la teoría de lenguajes, buscando resolver
-instancias específicas del problema en tiempo polinomial o caracterizar
-su complejidad a través de lenguajes formales. La idea general común a
-estos trabajos consiste en codificar una fórmula booleana como una
-cadena y plantear el $SAT$ como un problema de la palabra o del vacío
-sobre un lenguaje formal asociado.
+La acotación polinomial $O(|P| n^{2h(l+1)})$ del algoritmo estándar
+[REF] requiere que todos los argumentos que reciben los predicados
+sean subcadenas de la cadena de entrada, condición que no se cumple
+en $G_{S\text{-}SAT}$ por las mismas razones que en $G_e$.
 
-\subsection{$SAT$ libre del contexto (SATCF)}
+En la construcción de $G_{S\text{-}SAT}$ la relación entre una fórmula
+booleana y una asignación de verdad se establece mediante lenguajes
+auxiliares y fases sucesivas de reconocimiento con ambigüedad
+controlada. Como las cláusulas de una RCG operan solo sobre rangos, y
+no sobre operaciones booleanas, el formalismo no expresa de manera
+nativa la evaluación de una cláusula ni la consistencia global de una
+asignación.
 
-El primer antecedente directo es el trabajo de Fernández Arias
-[REF], donde se aborda una variante del $SAT$ mediante
-gramáticas libres del contexto. La idea principal consta de tres
-partes: asumir que todas las variables en la fórmula son distintas,
-construir un autómata finito que reconozca cadenas de $0$ y $1$ que
-hagan verdadera esa fórmula (asumiendo que todas las variables son
-distintas), y por último intersectar ese lenguaje regular con un
-lenguaje libre del contexto que garantice que todas las instancias de
-la misma variable tengan el mismo valor. Luego de esos tres pasos, se
-obtiene un lenguaje libre del contexto formado por las cadenas de $0$
-y $1$ que satisfacen la fórmula y que además respeta los valores de las
-variables duplicadas.
+Por otro lado, al partir de $G_{S\text{-}SAT}$ para razonar sobre
+2-SAT, la codificación trata la instancia como un $SAT$ arbitrario y
+no aprovecha las propiedades que vuelven polinomial a esa subclase. El
+mismo diagnóstico se extiende a Horn-SAT [REF] y XOR-SAT [REF].
 
-Para determinar si la fórmula es satisfacible o no, se comprueba si el
-lenguaje es vacío, que en el caso de los lenguajes libres del contexto
-tiene una complejidad $O(n)$. Todo el algoritmo descrito anteriormente
-tiene una complejidad que es $O(n^3)$, donde $n$ es el tamaño de la
-fórmula booleana.
+En el mismo trabajo se deja abierta la construcción de una RCG que
+reconozca 2-SAT con problema de la palabra polinomial.
 
-El autómata finito diseñado en [REF] se denominó
-\textbf{autómata booleano}. La idea detrás de este es representar las
-reglas de la lógica proposicional en las transiciones entre los estados
-de un autómata finito, donde cada estado del autómata representa un
-valor de verdad positivo o negativo con hasta ese momento (solo tomando
-las instancias de las variables asociadas a los caracteres reconocidos)
-la fórmula se evalúa positiva o negativa respectivamente.
+Restringirse a las SRCG, cuyo problema de la palabra es siempre
+polinomial [REF], tampoco resuelve la situación. En [REF] se
+intersecta un autómata booleano con una SRCG y se reduce el $SAT$ al
+problema del vacío sobre el lenguaje resultante. Esta vía obtiene
+procedimientos polinomiales, pero únicamente sobre subclases
+estructuralmente limitadas del $SAT$.
 
-Esta estrategia permite resolver en tiempo polinomial instancias del
-$SAT$ con estructura restringida (fórmulas donde cada variable aparece
-una cantidad acotada de veces o con ciertas restricciones sobre el
-orden de las variables en las cláusulas). Se denota esta clase como
-\textbf{SATCF}.
+Además, la búsqueda de todas las sustituciones de rango para los
+argumentos de un predicado crece con el número de fronteras libres de
+la cláusula [REF]. Una codificación del $SAT$, por la cantidad de
+correlaciones entre variables, cláusulas y ocurrencias, produce
+cláusulas con numerosas variables libres.
 
-\subsection{$SAT$ con gramáticas de concatenación de rango simple
-(SATSRC)}
+Los resultados anteriores justifican la necesidad de modificar el
+formalismo: el Teorema~2.3 cierra la vía por transducción finita, el
+resultado de complejidad $O(2^n m^2)$ demostrado en [REF] cierra la
+vía de una RCG directa en su forma estándar, y el problema abierto de
+2-SAT planteado en ese mismo trabajo muestra que la restricción a las
+subclases polinomiales no se obtiene dentro del formalismo.
 
-En [REF] se generaliza la idea de [REF],
-pero esta vez el autómata booleano asociado a la fórmula booleana se
-intersecta con una gramática de concatenación de rango simple
-[REF], lo cual permite ampliar el conjunto de fórmulas
-booleanas que pueden resolverse usando esta estrategia. Las gramáticas
-de concatenación de rango simple son un caso particular de las
-gramáticas de concatenación de rango.
+En este trabajo se propone modificar las reglas de producción de las
+RCG para incorporar primitivas que expresen la evaluación de cláusulas
+y la consistencia de las asignaciones de forma nativa. Las
+$(2,2)$-BRCG [REF] y las gramáticas de índice global [REF], estas
+últimas señaladas como candidato a formalismo cerrado bajo transducción
+finita, muestran que un rediseño de este tipo puede preservar un
+problema de la palabra polinomial.
 
-La razón por la cual SATSRC generaliza SATCF es que las SRCG son un
-superconjunto estricto de las gramáticas libres del contexto: toda
-CFG puede expresarse como una SRCG con predicados de aridad $1$, pero
-existen SRCG que describen lenguajes no libres del contexto. Por tanto,
-el conjunto de fórmulas cuyo orden de variables puede capturarse
-mediante una SRCG es estrictamente mayor que el de aquellas que admiten
-una descripción mediante una CFG.
-
-\subsection{Trabajos con SMG y el lenguaje de las fórmulas satisfacibles}
-
-En la misma línea se han explorado las \textbf{gramáticas matriciales
-simples} (SMG) como formalismo intermedio para representar instancias
-del $SAT$. Estos trabajos se mencionan aquí solo para ubicar el
-contexto, ya que no constituyen un antecedente directo del enfoque
-específico de este trabajo.
-
-El antecedente más cercano es el trabajo de Gómez Molina
-[REF], que aborda el problema desde una perspectiva
-complementaria a los anteriores. En vez de resolver el problema del
-vacío para el lenguaje de todas las interpretaciones que hacen verdadera
-a una fórmula dada, en [REF] se construye el lenguaje de
-todas las fórmulas booleanas satisfacibles, denotado $L_{S\text{-}SAT}$,
-y para determinar si una instancia del $SAT$ es satisfacible se
-comprueba si su representación como cadena pertenece a ese lenguaje.
-
-En [REF] se proponen dos estrategias para construir
-$L_{S\text{-}SAT}$. La primera utiliza una transducción finita de una
-variante del lenguaje \textit{Copy} sobre el alfabeto $\{0, 1, d\}$,
-denotada $L_{0, 1, d}$. Como resultado se demuestra que el problema de
-la palabra para todos los formalismos que generen la variante del
-lenguaje \textit{Copy} y sean cerrados bajo transducción finita es
-$NP$-Duro. La segunda estrategia construye directamente una RCG,
-denotada $G_{S\text{-}SAT}$, que reconoce $L_{S\text{-}SAT}$. A partir
-de esta gramática se demuestra que las RCG reconocen todos los
-problemas de la clase $NP$, en su representación como lenguaje formal.
-
-La gramática $G_{S\text{-}SAT}$ constituye un ejemplo de una RCG con
-problema de la palabra no polinomial: el algoritmo de reconocimiento
-que se obtiene al aplicar el método estándar tiene una complejidad
-$O(2^n m^2)$, donde $n$ es la cantidad de variables y $m$ la longitud
-de la cadena de entrada. Esta limitación es precisamente la que motiva
-las extensiones que se estudian en los capítulos siguientes del
-presente trabajo.
+En el próximo capítulo se presentan los elementos del formalismo
+propuesto y se define formalmente su proceso de derivación.
 
 \end{document}
