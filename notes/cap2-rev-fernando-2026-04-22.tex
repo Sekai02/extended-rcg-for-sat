@@ -13,6 +13,11 @@
 \theoremstyle{remark}
 \newtheorem{ejemplo}{Ejemplo}[chapter]
 
+\usepackage[dvipsnames]{xcolor}
+\usepackage[lmargin=2.5cm, rmargin=5cm]{geometry}
+\input{../../../../word-comments.tex}
+
+
 \begin{document}
 
 \setcounter{chapter}{1}
@@ -112,7 +117,7 @@ $Y = de$.
 Si al predicado $B(aX, XY, abZ)$ se le asigna el vector
 $[bb, de, abcc]$, entonces al tenerse $aX = bb$, $X$ no puede tomar
 ningún valor: el primer carácter $b$ de la cadena no coincide con el
-terminal $a$ que encabeza el argumento $aX$.
+terminal $a$ que encabeza el argumento $aX$. \notaparaelautor{¿Y entonces qué pasa? Me quedé con la intriga \texttt{:-D}.}
 
 A las producciones de esta gramática se les denomina \textbf{cláusulas}.
 La parte izquierda de la producción siempre está formada por un único
@@ -292,8 +297,8 @@ sola vez en los argumentos del lado izquierdo.
 
 Las SRCG son equivalentes a los sistemas lineales de reescritura libres
 del contexto (LCFRS) introducidos en~\cite{vijayshanker1987lcfrs}. Este
-subconjunto se utiliza en~\cite{aguileralopez2016} para describir el
-orden de las variables de una fórmula booleana en una variante del SAT.
+subconjunto se utiliza en~\cite{aguilera2016srcg} para describir \queesesto{el
+orden de las variables de una fórmula booleana} en una variante del SAT \notaparaelautor{¿en cuál? Aquí puedes poner algo como: en una variante del SAT que se denominó TAL COSA}.
 
 Una vez introducidas las definiciones formales, a continuación se
 presenta un ejemplo completo de reconocimiento de una cadena por una
@@ -361,7 +366,7 @@ la caracterización en términos de complejidad.
 Las RCG son cerradas bajo unión, intersección y complemento. La unión
 y la intersección de dos RCG da como resultado un formalismo que
 pertenece a las RCG, mientras que el formalismo resultante del
-complemento de una RCG es también una RCG~\cite{boullier1998proposal}.
+complemento de una RCG es también una RCG~\comment{\cite{boullier1998proposal}}{Esto no lo pongas aquí, sino en algo del estilo: la demostración se puede ver en [REF].}.
 \end{teorema}
 
 En cuanto al poder expresivo, las RCG son estrictamente más expresivas
@@ -372,10 +377,10 @@ contexto~\cite{hopcroft2006introduction}, y se reconoce por una RCG. En
 particular, el lenguaje $L_{\mathrm{copy}}^3$ se reconoce por la
 gramática $G_{\mathrm{copy}}^3$ del ejemplo anterior.
 
-Una vez presentadas las propiedades estructurales, a continuación se
+Una vez presentadas \queesesto{las propiedades estructurales}, a continuación se
 analiza la caracterización del formalismo en términos de complejidad
-computacional, que constituye el resultado que motiva el uso de las RCG
-en este trabajo.
+computacional, \comment{que constituye el resultado que motiva el uso de las RCG
+en este trabajo}{Esto está \textit{misterioso}}.
 
 \subsection{Complejidad y caracterización en términos de $PTIME$}
 
@@ -387,12 +392,12 @@ capítulos posteriores.
 \label{teo:prcg-ptime}
 Un lenguaje $L$ se reconoce por una RCG en su variante positiva si y
 solo si $L$ admite un algoritmo de reconocimiento que se ejecuta en
-tiempo polinomial~\cite{bertsch2001rcg, boullier2000range}.
+tiempo polinomial\quitaesto{~citebertsch2001rcg, boullier2000range}.
 \end{teorema}
 
 La demostración del teorema~\ref{teo:prcg-ptime} se realiza
 en~\cite{bertsch2001rcg, boullier2000range}. La dirección que afirma
-que todo lenguaje RCG está en $PTIME$ se sigue de la existencia de un
+que todo lenguaje RCG está en $PTIME$ \comment{se sigue}{esta expresión no la entiendo \texttt{:-(}.} de la existencia de un
 algoritmo de reconocimiento polinomial para el formalismo, que se
 describe a continuación.
 
@@ -416,7 +421,7 @@ central de los capítulos posteriores.
 
 Una vez establecida la caracterización de las RCG como formalismo que
 reconoce exactamente la clase $PTIME$, en la siguiente sección se
-revisan los antecedentes directos del trabajo.
+revisan los antecedentes directos \comment{del trabajo}{¿de qué trabajo? ¿del tuyo o de los que estás referenciando?}.
 
 \section{Antecedentes en el estudio del SAT mediante formalismos de la teoría de lenguajes}
 \label{sec:antecedentes}
@@ -427,7 +432,7 @@ en la Facultad de Matemática y Computación de la Universidad de La
 Habana. En esta sección se revisan los tres trabajos previos que
 constituyen el punto de partida del presente trabajo.
 
-En~\cite{fernandezarias2007} se propone una estrategia para resolver
+En~\cite{fernandez2007sat} se propone una estrategia para resolver
 instancias del SAT mediante gramáticas libres del contexto. La
 estrategia consiste en tres pasos: asumir que todas las variables de la
 fórmula son distintas; construir un autómata finito que reconozca las
@@ -437,35 +442,35 @@ contexto que obligue a que todas las instancias de una misma variable
 tomen el mismo valor. La intersección resultante es un lenguaje libre
 del contexto sobre el que el problema del vacío se decide en tiempo
 polinomial, con lo que el procedimiento completo opera en complejidad
-$O(n^3)$ para ciertas subclases del SAT.
+$O(n^3)$ \comment{para ciertas subclases del SAT}{Parece que dices que operan en $n^{3}$ para ciertas subclases, y para otras en otra complejidad. Arréglalo para que quede claro a qué te refieres.}.
 
-En~\cite{aguileralopez2016} se extiende la idea anterior al emplear
+En~\cite{aguilera2016srcg} se extiende la idea anterior al emplear
 gramáticas de concatenación de rango simple en lugar de gramáticas
 libres del contexto. El autómata booleano asociado a la fórmula se
 intersecta con una SRCG que modela el orden de las variables, lo que
 amplía el conjunto de fórmulas booleanas que admiten solución mediante
 esta estrategia.
 
-En~\cite{gomezmolina2025} se propone una estrategia diferente: en lugar de
+En~\cite{gomez2025sat} se propone una estrategia diferente: en lugar de
 resolver el problema del vacío para el lenguaje de las interpretaciones
 que hacen verdadera a una fórmula dada, se construye el lenguaje de
 todas las fórmulas booleanas satisfacibles y se decide la
 satisfacibilidad mediante el problema de la palabra. Como parte de
 dicho trabajo se propone una gramática que reconocería el lenguaje de
-las fórmulas satisfacibles, y a partir de ella se derivan afirmaciones
-sobre la expresividad del formalismo con respecto a la clase $NP$.
+las fórmulas satisfacibles, \comment{y a partir de ella se derivan afirmaciones
+sobre la expresividad del formalismo con respecto a la clase $NP$}{Esto está misterioso.}.
 
 Los tres trabajos anteriores conforman un programa de investigación
 acumulativo en la Facultad sobre la relación entre formalismos
-gramaticales y el SAT. El presente trabajo se inscribe en este programa
+gramaticales y el SAT. \comment{El presente trabajo se inscribe en este programa
 y se propone examinar con precisión formal la clasificación de la
-gramática propuesta en~\cite{gomezmolina2025} dentro de la jerarquía de
+gramática propuesta en~\cite{gomez2025sat} dentro de la jerarquía de
 formalismos considerada en este capítulo, analizar las consecuencias de
 dicha clasificación para los resultados derivados, y explorar
-construcciones de RCG para variantes polinomiales del SAT. Estos
+construcciones de RCG para variantes polinomiales del SAT.}{Bueno, esto lo vamos a dejar para más tarde para ver qué se hace al final \texttt{:-D}.} Estos
 objetivos se desarrollan en los capítulos siguientes.
 
 \bibliographystyle{plain}
-\bibliography{../bib/referencias}
+\bibliography{referencias}
 
 \end{document}
