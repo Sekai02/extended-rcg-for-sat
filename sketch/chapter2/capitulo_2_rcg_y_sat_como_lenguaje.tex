@@ -19,14 +19,10 @@
 \chapter{Gramáticas de concatenación de rango y el SAT como lenguaje formal}
 \label{cap:rcg-sat}
 
-En este capítulo se presentan las gramáticas de concatenación de rango,
-formalismo de base sobre el que se desarrolla el resto del trabajo. Se
-analizan sus principales propiedades y limitaciones, y se revisan los
-antecedentes directos que abordan el problema de la satisfacibilidad
-booleana mediante formalismos de la teoría de lenguajes formales, con
-énfasis en los trabajos previos realizados en la Facultad de Matemática
-y Computación de la Universidad de La Habana. Los conceptos básicos
-utilizados en este capítulo se presentaron en el capítulo anterior.
+Las gramáticas de concatenación de rango son el formalismo de base
+sobre el que se desarrolla el resto del trabajo. Los conceptos básicos
+que se utilizan en este capítulo se presentaron en el capítulo
+anterior.
 
 El capítulo se organiza en tres secciones. La sección~\ref{sec:rcg}
 presenta las gramáticas de concatenación de rango, su presentación
@@ -63,16 +59,10 @@ caracterización. Para abreviar, a lo largo del documento se adopta el
 nombre \textbf{gramática de concatenación de rango} (RCG) para
 referirse, salvo mención explícita, a la variante positiva.
 
-La sección se organiza en tres partes. Primero se introducen de manera
-intuitiva los elementos de las gramáticas de concatenación de rango.
-Después se presentan las definiciones formales. Por último se presenta
-un ejemplo completo de reconocimiento por una RCG.
-
 \subsection{Presentación intuitiva}
 
-En esta subsección se presentan las nociones de predicado, argumento,
-sustitución de rango y derivación, que sirven de base para las
-definiciones formales de la siguiente subsección.
+A continuación se introducen las nociones de predicado, argumento,
+sustitución de rango y derivación, que se utilizan más adelante.
 
 A los no terminales de una RCG se les llama \textbf{predicados}. Cada
 predicado tiene un conjunto de argumentos. A la cantidad de argumentos
@@ -112,7 +102,8 @@ $Y = de$.
 Si al predicado $B(aX, XY, abZ)$ se le asigna el vector
 $[bb, de, abcc]$, entonces al tenerse $aX = bb$, $X$ no puede tomar
 ningún valor: el primer carácter $b$ de la cadena no coincide con el
-terminal $a$ que encabeza el argumento $aX$.
+terminal $a$ que encabeza el argumento $aX$. Por tanto, el predicado
+$B$ no reconoce este vector.
 
 A las producciones de esta gramática se les denomina \textbf{cláusulas}.
 La parte izquierda de la producción siempre está formada por un único
@@ -292,8 +283,9 @@ sola vez en los argumentos del lado izquierdo.
 
 Las SRCG son equivalentes a los sistemas lineales de reescritura libres
 del contexto (LCFRS) introducidos en~\cite{vijayshanker1987lcfrs}. Este
-subconjunto se utiliza en~\cite{aguileralopez2016} para describir el
-orden de las variables de una fórmula booleana en una variante del SAT.
+subconjunto se utiliza en~\cite{aguileralopez2016} para una variante
+del SAT denominada \textbf{Satisfacibilidad Booleana de Concatenación
+de Rango Simple}, que se discute en la sección~\ref{sec:antecedentes}.
 
 Una vez introducidas las definiciones formales, a continuación se
 presenta un ejemplo completo de reconocimiento de una cadena por una
@@ -352,17 +344,20 @@ Las RCG fueron diseñadas como un formalismo modular, en el sentido de
 que las operaciones de unión, intersección y complemento son cerradas
 para este formalismo~\cite{boullier1998proposal}. La ausencia de esta
 modularidad en las gramáticas libres del contexto fue una de las
-limitaciones que motivó la propuesta original de las
-RCG~\cite{boullier1998proposal}. En esta sección se describen las
-propiedades de clausura que demuestran la modularidad del formalismo y
-la caracterización en términos de complejidad.
+limitaciones que motivó la propuesta original de las RCG. En esta
+sección se describen las propiedades de clausura que demuestran la
+modularidad del formalismo y la caracterización en términos de
+complejidad.
 
 \begin{teorema}[Clausura bajo operaciones de conjuntos]
 Las RCG son cerradas bajo unión, intersección y complemento. La unión
 y la intersección de dos RCG da como resultado un formalismo que
 pertenece a las RCG, mientras que el formalismo resultante del
-complemento de una RCG es también una RCG~\cite{boullier1998proposal}.
+complemento de una RCG es también una RCG.
 \end{teorema}
+
+La demostración del teorema anterior se realiza
+en~\cite{boullier1998proposal}.
 
 En cuanto al poder expresivo, las RCG son estrictamente más expresivas
 que las gramáticas libres del contexto. Por ejemplo, para todo
@@ -372,10 +367,10 @@ contexto~\cite{hopcroft2006introduction}, y se reconoce por una RCG. En
 particular, el lenguaje $L_{\mathrm{copy}}^3$ se reconoce por la
 gramática $G_{\mathrm{copy}}^3$ del ejemplo anterior.
 
-Una vez presentadas las propiedades estructurales, a continuación se
-analiza la caracterización del formalismo en términos de complejidad
-computacional, que constituye el resultado que motiva el uso de las RCG
-en este trabajo.
+Una vez presentadas la clausura bajo operaciones de conjuntos y la
+expresividad de las RCG sobre las CFG, en la próxima subsección se
+analiza la caracterización del formalismo en términos de la clase
+$PTIME$, resultado que motiva la elección de las RCG en este trabajo.
 
 \subsection{Complejidad y caracterización en términos de $PTIME$}
 
@@ -387,7 +382,7 @@ capítulos posteriores.
 \label{teo:prcg-ptime}
 Un lenguaje $L$ se reconoce por una RCG en su variante positiva si y
 solo si $L$ admite un algoritmo de reconocimiento que se ejecuta en
-tiempo polinomial~\cite{bertsch2001rcg, boullier2000range}.
+tiempo polinomial.
 \end{teorema}
 
 La demostración del teorema~\ref{teo:prcg-ptime} se realiza

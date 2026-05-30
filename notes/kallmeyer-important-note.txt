@@ -1,0 +1,4 @@
+  Kallmeyer remata con una frase que te conviene muchísimo (la traduzco): "las 
+  cláusulas combinatorias y las cláusulas erasing no aumentan la capacidad 
+  generativa... La propiedad crucial por la que las RCG son más poderosas que las RCG
+   simples es la posible no-linealidad de las cláusulas."
