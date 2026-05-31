@@ -19,7 +19,7 @@
 \begin{document}
 
 \setcounter{chapter}{2}
-\chapter{Construcción de la intersección de una gramática de concatenación de rango con un lenguaje regular}
+\chapter{Construcción de la gramática producto de una gramática de concatenación de rango y un lenguaje regular}
 \label{cap:interseccion}
 
 En el capítulo~\ref{cap:rcg-sat} se presentaron las gramáticas de
@@ -31,10 +31,11 @@ verdaderas y una gramática que garantiza que las instancias de una
 misma variable tomen el mismo valor, y la satisfacibilidad se decide
 mediante el problema del vacío sobre la intersección de ambos
 lenguajes. Llevar esta estrategia a las gramáticas de concatenación de
-rango exige construir la intersección entre una gramática de
-concatenación de rango y un lenguaje regular.
+rango exige construir una gramática de concatenación de rango que
+reconozca la intersección del lenguaje de otra con un lenguaje
+regular.
 
-La literatura provee construcciones de esta intersección para las
+La literatura provee tales construcciones para las
 gramáticas libres del contexto~\cite{barhillel1961} y las de
 concatenación de rango simple~\cite{bertsch2001rcg}. En las gramáticas
 de concatenación de rango, una misma variable puede aparecer en varias
@@ -42,12 +43,15 @@ posiciones de una cláusula, lo que introduce una dificultad que las
 construcciones anteriores no contemplan. Este capítulo aporta una
 construcción que, a partir de una gramática de concatenación de rango
 $G$ y un autómata finito $A$, produce una nueva gramática de
-concatenación de rango $G'$ cuyo lenguaje es exactamente
-$L(G) \cap L(A)$.
+concatenación de rango $G'$, la \emph{gramática
+producto}\footnote{El término se usa por analogía con el autómata
+producto, la construcción estándar para la intersección de dos
+lenguajes regulares~\cite{hopcroft2006introduction}.},
+cuyo lenguaje es exactamente $L(G) \cap L(A)$.
 
 \section{El rango sobre un autómata}
 
-Antes de construir la gramática de la intersección conviene precisar qué
+Antes de construir la gramática producto conviene precisar qué
 cadenas pertenecen a $L(G) \cap L(A)$ y qué exige reconocerlas. La
 intersección contiene las cadenas que la gramática reconoce y el
 autómata acepta simultáneamente. Una cadena
@@ -231,14 +235,14 @@ intersección $L(G_0) \cap L(A_0)$.
 Si $X = aaa$, $G_0$ no deriva $aaa$ por su longitud impar, así que esa
 elección no aparece en ninguna derivación de $G_0$.
 
-La sección siguiente presenta la construcción de la intersección sobre
-una subclase de gramáticas de concatenación de rango que reconoce los
-mismos lenguajes.
+La sección siguiente presenta la construcción de la gramática producto
+sobre una subclase de gramáticas de concatenación de rango que
+reconoce los mismos lenguajes.
 
-\section{Construcción de la intersección}
+\section{Construcción de la gramática producto}
 
-En esta sección se desarrolla la construcción de la intersección.
-Primero se presenta el algoritmo y su pseudocódigo. A continuación se
+En esta sección se desarrolla la construcción de la gramática
+producto. Primero se presenta el algoritmo y su pseudocódigo. A continuación se
 fija la clase de gramáticas de entrada. Después se demuestra su
 correctitud. Por último se analiza su complejidad.
 
