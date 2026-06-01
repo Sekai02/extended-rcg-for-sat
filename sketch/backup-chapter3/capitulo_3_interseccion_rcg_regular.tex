@@ -284,49 +284,56 @@ conjunto de predicados $N'$ consta de los predicados indexados y del
 predicado inicial $S'$.
 
 Las cláusulas de $G'$ se generan a partir de las cláusulas de $G$ y de
-las asignaciones de rangos sobre $A$ a los argumentos del cuerpo. Para
-cada cláusula
+las asignaciones de rangos sobre $A$ a sus argumentos. Para cada
+cláusula
 \[
   B_0(\alpha_{0,1}, \ldots, \alpha_{0,k_0}) \to
   B_1(\alpha_{1,1}, \ldots, \alpha_{1,k_1}) \cdots
   B_m(\alpha_{m,1}, \ldots, \alpha_{m,k_m})
 \]
-de $G$ y cada asignación de rangos sobre $A$ a los argumentos del
-cuerpo, cada variable queda con el rango de su argumento y cada
-argumento de la cabeza realiza el rango que componen sus símbolos.
-Indexando cada predicado $B_j$ por el vector $\vec q_j$ de los rangos
-de sus argumentos se obtiene:
+de $G$ y cada asignación de rangos sobre $A$ a cada argumento
+$\alpha_{j,i}$, se obtiene una cláusula de $G'$ indexando cada
+predicado $B_j$ por el vector $\vec q_j$ cuya componente $i$-ésima es
+el rango $(q_{j,i}, q'_{j,i})$ que realiza el argumento $\alpha_{j,i}$
+bajo su asignación:
 \[
   B_0[\vec q_0](\alpha_{0,1}, \ldots, \alpha_{0,k_0}) \to
   B_1[\vec q_1](\alpha_{1,1}, \ldots, \alpha_{1,k_1}) \cdots
   B_m[\vec q_m](\alpha_{m,1}, \ldots, \alpha_{m,k_m}).
 \]
 
-En la misma gramática de ejemplo, en la cláusula
-$Par(aaX) \to Par(X)$ se asigna al argumento $X$ del cuerpo el rango
-$(q_2, q_0)$. En la cabeza, los dos terminales llevan al autómata de
-$q_0$ a $q_2$, donde empieza $X$; como $X$ realiza $(q_2, q_0)$, el
-argumento $aaX$ realiza el rango $(q_0, q_0)$. La cláusula que se
-obtiene en $G'$ es:
+En la misma gramática de ejemplo, si en el argumento $aaX$ de la cláusula
+$Par(aaX) \to Par(X)$ se asigna $(q_0, q_1)$ al primer $a$,
+$(q_1, q_2)$ al segundo $a$ y $(q_2, q_0)$ a la variable $X$ de la
+cabeza, el argumento $aaX$ realiza el rango $(q_0, q_0)$. Si el
+argumento $X$ del cuerpo realiza el rango $(q_2, q_0)$, la cláusula que
+se obtiene en $G'$ es:
 \[
   Par[(q_0, q_0)](aaX) \to Par[(q_2, q_0)](X).
 \]
 
 La cláusula $Par(aaX) \to Par(X)$ produce una cláusula en $G'$ por
-cada rango asignado al argumento $X$ del cuerpo. El rango de $X$ fija
-el de la cabeza, así que cada una de las nueve asignaciones determina
-una sola cláusula:
+cada combinación de una asignación al argumento $aaX$ con una
+asignación al argumento $X$ del cuerpo. El argumento $aaX$ admite
+nueve asignaciones, una por cada rango $(q_i, q_j)$ que realiza, y el
+argumento $X$ del cuerpo admite otras nueve. Cada una de las nueve
+cabezas $Par[(q_i, q_j)]$ se combina con cada uno de los nueve cuerpos
+$Par[(q_k, q_l)]$, lo que produce $9 \times 9 = 81$ cláusulas:
 \[
 \begin{array}{r@{\;\to\;}l}
-Par[(q_0, q_0)](aaX) & Par[(q_2, q_0)](X), \\
-Par[(q_0, q_1)](aaX) & Par[(q_2, q_1)](X), \\
-Par[(q_0, q_2)](aaX) & Par[(q_2, q_2)](X), \\
-Par[(q_1, q_0)](aaX) & Par[(q_0, q_0)](X), \\
-Par[(q_1, q_1)](aaX) & Par[(q_0, q_1)](X), \\
-Par[(q_1, q_2)](aaX) & Par[(q_0, q_2)](X), \\
-Par[(q_2, q_0)](aaX) & Par[(q_1, q_0)](X), \\
-Par[(q_2, q_1)](aaX) & Par[(q_1, q_1)](X), \\
-Par[(q_2, q_2)](aaX) & Par[(q_1, q_2)](X).
+Par[(q_0, q_0)](aaX) & \left\{
+  \begin{array}{l}
+    Par[(q_0, q_0)](X), \\
+    \;\;\vdots \\
+    Par[(q_2, q_2)](X),
+  \end{array}\right. \\[3em]
+\multicolumn{2}{c}{\vdots} \\[1em]
+Par[(q_2, q_2)](aaX) & \left\{
+  \begin{array}{l}
+    Par[(q_0, q_0)](X), \\
+    \;\;\vdots \\
+    Par[(q_2, q_2)](X).
+  \end{array}\right.
 \end{array}
 \]
 Cuando el cuerpo de una cláusula de $G$ es vacío, solo se indexa la
@@ -488,8 +495,7 @@ siguiente la precisa.
 
 En las gramáticas de concatenación de rango, una misma variable puede
 aparecer varias veces en una cláusula. En la construcción de la
-sección~\ref{subsec:algoritmo}, cada argumento del cuerpo se indexa por
-separado,
+sección~\ref{subsec:algoritmo}, cada argumento se indexa por separado,
 sin que se fije el mismo rango para las ocurrencias de una misma
 variable, que representan una sola cadena.
 Sin una condición que lo imponga, se les pueden asignar rangos
@@ -498,8 +504,8 @@ intersección.
 
 Por eso es necesario añadir la siguiente condición: en cada cláusula,
 a todas las ocurrencias de una variable se les asigna el mismo rango.
-Más formalmente, si una variable $X$ aparece en dos argumentos del
-cuerpo con asignaciones de rangos $\rho$ y $\rho'$, entonces
+Más formalmente, si una variable $X$ aparece en dos argumentos de la
+cláusula con asignaciones de rangos $\rho$ y $\rho'$, entonces
 $\rho(X) = \rho'(X)$.
 
 Por ejemplo, si a $G_0$ se le agrega un predicado $Cinco$, que reconoce
@@ -545,11 +551,9 @@ entonces exactamente las cadenas de longitud múltiplo de dos, tres y
 cinco, es decir de treinta.
 
 La repetición de variables es justo lo que separa a las gramáticas de
-concatenación de rango generales de las simples, y la condición es lo
-que el algoritmo para las simples no necesita: en una gramática simple
-cada variable aparece una sola vez en el cuerpo, así que no hay varias
-ocurrencias que coordinar. Imponerla es lo que permite tratar
-gramáticas de concatenación de rango generales.
+concatenación de rango de las simples, y la condición es lo que el
+algoritmo para las simples no necesita. Imponerla es lo que permite
+tratar gramáticas de concatenación de rango generales.
 
 \bibliographystyle{plain}
 \bibliography{../bib/referencias}
