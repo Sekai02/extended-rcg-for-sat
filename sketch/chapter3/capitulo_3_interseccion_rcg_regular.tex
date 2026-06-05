@@ -7,6 +7,7 @@
 \usepackage{float}
 \usepackage{tikz}
 \usetikzlibrary{automata, positioning}
+\usepackage{clrscode3e}
 
 \theoremstyle{definition}
 \newtheorem{definicion}{Definición}[chapter]
@@ -146,7 +147,7 @@ $(q_2, q_1)$; y $aaa$ realiza $(q_0, q_0)$, $(q_1, q_1)$ y $(q_2, q_2)$.
 En la sección siguiente, las nociones planteadas para las cadenas se
 generalizan al caso de los argumentos.
 
-\section{El rango de un argumento sobre un autómata}
+\section{El rango de un argumento sobre un autómata}\label{sec:rango-argumento}
 
 La sección anterior estableció cuándo una cadena realiza un rango sobre
 $A$. Un argumento de una cláusula es una secuencia de terminales y
@@ -284,18 +285,16 @@ conjunto de predicados $N'$ consta de los predicados indexados y del
 predicado inicial $S'$.
 
 Las cláusulas de $G'$ se generan a partir de las cláusulas de $G$ y de
-las asignaciones de rangos sobre $A$ a los argumentos del cuerpo. Para
+las asignaciones de rangos sobre $A$ a sus ocurrencias de símbolos. Para
 cada cláusula
 \[
   B_0(\alpha_{0,1}, \ldots, \alpha_{0,k_0}) \to
   B_1(\alpha_{1,1}, \ldots, \alpha_{1,k_1}) \cdots
   B_m(\alpha_{m,1}, \ldots, \alpha_{m,k_m})
 \]
-de $G$ y cada asignación de rangos sobre $A$ a los argumentos del
-cuerpo, cada variable queda con el rango de su argumento y cada
-argumento de la cabeza realiza el rango que componen sus símbolos.
-Indexando cada predicado $B_j$ por el vector $\vec q_j$ de los rangos
-de sus argumentos se obtiene:
+de $G$ y cada asignación que cumpla las condiciones de la
+sección~\ref{sec:rango-argumento}, indexando cada predicado $B_j$ por el
+vector $\vec q_j$ de los rangos de sus argumentos se obtiene:
 \[
   B_0[\vec q_0](\alpha_{0,1}, \ldots, \alpha_{0,k_0}) \to
   B_1[\vec q_1](\alpha_{1,1}, \ldots, \alpha_{1,k_1}) \cdots
@@ -313,8 +312,8 @@ obtiene en $G'$ es:
 \]
 
 La cláusula $Par(aaX) \to Par(X)$ produce una cláusula en $G'$ por
-cada rango asignado al argumento $X$ del cuerpo. El rango de $X$ fija
-el de la cabeza, así que cada una de las nueve asignaciones determina
+cada rango asignado al argumento $X$ del cuerpo. En $A_0$, el rango de
+$X$ fija el de la cabeza, así que cada una de las nueve asignaciones determina
 una sola cláusula:
 \[
 \begin{array}{r@{\;\to\;}l}
@@ -470,21 +469,31 @@ si en cada cláusula toda variable de la cabeza aparece también en el
 cuerpo.
 \end{definicion}
 
-Por ejemplo, las cláusulas de $G_0$ cumplen la propiedad:
-$Par(aaX) \to Par(X)$ tiene la variable $X$ en la cabeza y en el
-cuerpo, y $Par(\varepsilon) \to \varepsilon$ no tiene variables. Una
-cláusula como $A(XY) \to B(X)$ no la cumple, pues $Y$ figura en la
-cabeza y falta en el cuerpo.
+Se pide además que los argumentos del cuerpo sean variables, de modo
+que cada variable del cuerpo sea un argumento por sí sola.
 
-Exigir la propiedad no descarta ningún lenguaje: toda gramática de
-concatenación de rango admite una equivalente que la
+\begin{definicion}
+Una gramática de concatenación de rango es \emph{non-combinatorial} si
+en cada cláusula los argumentos del cuerpo son variables.
+\end{definicion}
+
+Por ejemplo, las cláusulas de $G_0$ cumplen ambas: $Par(aaX) \to
+Par(X)$ tiene la variable $X$ en la cabeza y en el cuerpo, donde es un
+argumento por sí sola, y $Par(\varepsilon) \to \varepsilon$ no tiene
+variables. Una cláusula como $A(XY) \to B(X)$ no es \emph{top-down
+non-erasing}, pues $Y$ figura en la cabeza y falta en el cuerpo, y
+$A(X) \to B(Xa)$ no es \emph{non-combinatorial}, pues el argumento del
+cuerpo $Xa$ no es una variable.
+
+Exigir ambas propiedades no descarta ningún lenguaje: toda gramática de
+concatenación de rango admite una equivalente que las
 cumple~\cite{boullier1998proposal, kallmeyer2010parsing}.
 
-Además de la restricción sobre la gramática de entrada, el algoritmo
-necesita una condición sobre los rangos que asigna. La sección
-siguiente la precisa.
+Además de la restricción sobre la gramática de entrada, hace falta una
+condición sobre los rangos que se asignan. La sección siguiente la
+precisa.
 
-\subsection{Variables repetidas en una cláusula}
+\subsection{Variables repetidas en una cláusula}\label{subsec:coherencia}
 
 En las gramáticas de concatenación de rango, una misma variable puede
 aparecer varias veces en una cláusula. En la construcción de la
@@ -545,11 +554,241 @@ entonces exactamente las cadenas de longitud múltiplo de dos, tres y
 cinco, es decir de treinta.
 
 La repetición de variables es justo lo que separa a las gramáticas de
-concatenación de rango generales de las simples, y la condición es lo
-que el algoritmo para las simples no necesita: en una gramática simple
+concatenación de rango generales de las simples, y la condición no
+hace falta para las simples: en una gramática simple
 cada variable aparece una sola vez en el cuerpo, así que no hay varias
 ocurrencias que coordinar. Imponerla es lo que permite tratar
 gramáticas de concatenación de rango generales.
+
+\subsection{Pseudocódigo}
+
+Ya se presentaron la idea del algoritmo, la restricción sobre la
+gramática de entrada y la condición sobre las ocurrencias de una misma
+variable; con ellas se fija la construcción. A continuación se describe
+el pseudocódigo.
+
+Recibe una gramática de concatenación de rango non-combinatorial y
+top-down non-erasing $G = (N, T, V, P, S)$ y un autómata finito determinista
+$A = (Q, \Sigma, \delta, q_0, F)$; devuelve $G' = (N', T, V, P', S')$
+con $L(G') = L(G) \cap L(A)$.
+
+\begin{codebox}
+\Procname{$\proc{Product-Grammar}(G, A)$}
+\li $P' = \emptyset$
+\li \For each clause $c = B_0(\alpha_0) \to B_1(\alpha_1) \cdots B_m(\alpha_m)$ in $P$
+\li \Do
+        let $\sigma_1, \sigma_2, \ldots$ be the symbol occurrences of $c$ and its empty arguments
+\li     $\ell = $ number of these
+\li     \For each $\mu = ((q_1, q'_1), \ldots, (q_\ell, q'_\ell)) \in (Q \times Q)^\ell$
+\li     \Do
+            \If $\proc{Consistent}(c, \mu)$
+\li         \Then
+                \For $j = 0$ \To $m$
+\li             \Do
+                    $\vec{q}_j = (\proc{Range}(\alpha_{j,1}, \mu), \ldots, \proc{Range}(\alpha_{j,k_j}, \mu))$
+                \End
+\li             add $B_0[\vec{q}_0](\alpha_0) \to B_1[\vec{q}_1](\alpha_1) \cdots B_m[\vec{q}_m](\alpha_m)$ to $P'$
+            \End
+        \End
+    \End
+\li \For each $q \in F$
+\li \Do
+        add $S'(X) \to S[(q_0, q)](X)$ to $P'$
+    \End
+\li $N' = \{\, S' \,\} \cup \{\, B' : B' \text{ occurs in } P' \,\}$
+\li \Return $(N', T, V, P', S')$
+\end{codebox}
+
+En la línea~2 se recorren las cláusulas de $G$. Para cada una, en las
+líneas~3 y~4 se cuentan los símbolos que aparecen en ella, con
+repeticiones, y sus argumentos vacíos. En la línea~5 se recorren todas
+las posibles asignaciones de rangos. De la línea~6 a la~9, con $\proc{Consistent}$ se conservan
+solo las asignaciones que cumplen las condiciones de las
+secciones~\ref{sec:rango-argumento} y~\ref{subsec:coherencia}; por
+cada una se indexa cada predicado por los rangos de sus argumentos con
+$\proc{Range}$, y se agrega la cláusula a $P'$. En las líneas~10 y~11 se
+agregan las cláusulas del predicado inicial $S'$, una por cada estado
+final. En la línea~12 se agregan a $N'$ el
+predicado $S'$ y los predicados que aparecen en $P'$.
+
+En $\proc{Consistent}$ se comprueban las condiciones sobre $\mu$:
+
+\begin{codebox}
+\Procname{$\proc{Consistent}(c, \mu)$}
+\li \For each non-empty argument $\alpha = \alpha_1 \cdots \alpha_n$ of $c$, with $\mu(\alpha_i) = (q_i, q'_i)$
+\li \Do
+        \For $i = 1$ \To $n$
+\li     \Do
+            \If $i < n$ \kw{and} $q'_i \neq q_{i+1}$
+\li         \Then \Return \const{false}
+            \End
+\li         \If $\alpha_i$ is a terminal $a$ \kw{and} $\delta(q_i, a) \neq q'_i$
+\li         \Then \Return \const{false}
+            \End
+        \End
+    \End
+\li \For each empty argument $\alpha$ of $c$, with $\mu(\alpha) = (q, q')$
+\li \Do
+        \If $q \neq q'$
+\li     \Then \Return \const{false}
+        \End
+    \End
+\li \For each variable $X$ of $c$
+\li \Do
+        \If two occurrences of $X$ have different ranges under $\mu$
+\li     \Then \Return \const{false}
+        \End
+    \End
+\li \Return \const{true}
+\end{codebox}
+
+Las líneas~1--9 de $\proc{Consistent}$ son la condición de la
+sección~\ref{sec:rango-argumento}; las líneas~10--12, la de la
+sección~\ref{subsec:coherencia}.
+
+$\proc{Range}(\alpha, \mu)$ es el rango que el argumento $\alpha$
+realiza bajo $\mu$:
+
+\begin{codebox}
+\Procname{$\proc{Range}(\alpha, \mu)$}
+\li \If $\alpha = \varepsilon$
+\li \Then \Return $\mu(\alpha)$
+    \End
+\li let $\alpha = \alpha_1 \cdots \alpha_n$, with $\mu(\alpha_i) = (q_i, q'_i)$
+\li \Return $(q_1, q'_n)$
+\end{codebox}
+
+Para $\alpha = \alpha_1 \cdots \alpha_n$ es $(q_1, q'_n)$, el inicio del
+primer símbolo y el final del último; para $\alpha = \varepsilon$ es el
+rango $(q, q)$ que $\mu$ le asigna, el rango que $\alpha$ realiza según
+la sección~\ref{sec:rango-argumento}.
+
+\subsection{Correctitud}
+
+Las secciones anteriores describen la construcción de la gramática
+producto $G'$. Falta demostrar que $G'$ reconoce exactamente
+$L(G) \cap L(A)$. En toda la sección $G$ es non-combinatorial y top-down
+non-erasing, y $G'$ es la gramática que la construcción produce a partir
+de $G$ y $A$.
+
+La igualdad $L(G') = L(G) \cap L(A)$ se prueba por las dos inclusiones.
+La clave es una propiedad de los índices: una cláusula indexada solo
+reconoce cadenas que realizan los rangos con que se indexan sus
+argumentos. De ahí, $A$ acepta toda cadena que $G'$ reconoce; y, al
+borrar los índices, también la reconoce $G$. En el otro sentido, se
+parte de una derivación de $G$ y se indexa cada predicado con los rangos
+sobre $A$ que sus argumentos realizan al leer la cadena; el resultado es
+una derivación de $G'$.
+
+Sea $B[\vec q](u_1, \ldots, u_k)$ el predicado indexado $B[\vec q]$
+aplicado a las cadenas $u_1, \ldots, u_k$, una por cada argumento, con
+$\vec q = ((q_1, q'_1), \ldots, (q_k, q'_k))$.
+
+\begin{lema}\label{lema:proyeccion}
+Si $B[\vec q](u_1, \ldots, u_k)$ se deriva a $\varepsilon$ en $G'$,
+entonces $B(u_1, \ldots, u_k)$ se deriva a $\varepsilon$ en $G$.
+\end{lema}
+
+\begin{proof}
+Las cláusulas que intervienen en una derivación de
+$B[\vec q](u_1, \ldots, u_k)$ son cláusulas indexadas, cada una
+proveniente de una cláusula de $P$ a la que solo se le agregan los
+índices de los predicados; el predicado $S'$ no aparece, pues no figura
+en el cuerpo de ninguna cláusula. Al borrar los índices, cada cláusula
+indexada se reduce a su cláusula de $P$, y se obtiene una derivación de
+$B(u_1, \ldots, u_k)$ en $G$.
+\end{proof}
+
+La hipótesis non-combinatorial es clave en el segundo lema.
+
+\begin{lema}\label{lema:realizacion}
+Si $B[\vec q](u_1, \ldots, u_k)$ se deriva a $\varepsilon$ en $G'$,
+entonces cada $u_l$ realiza el rango $(q_l, q'_l)$.
+\end{lema}
+
+\begin{proof}
+La prueba es por inducción en la cantidad de pasos de la derivación. La
+derivación comienza con una cláusula de $P'$ de cabeza $B[\vec q]$, que
+proviene de una cláusula
+$c = B(\alpha_0) \to B_1(\alpha_1) \cdots B_m(\alpha_m)$ de $P$ y de una
+asignación $\mu$ con $\proc{Consistent}(c, \mu)$:
+\[
+  B[\vec q](\alpha_0) \to B_1[\vec q_1](\alpha_1) \cdots B_m[\vec q_m](\alpha_m),
+\]
+con $(q_l, q'_l) = \proc{Range}(\alpha_{0,l}, \mu)$. La cláusula se instancia
+con una sustitución $\theta$ de las variables por subcadenas, de modo
+que $u_l = \theta(\alpha_{0,l})$ y, en el cuerpo, los predicados
+$B_j[\vec q_j](\theta(\alpha_{j,1}), \ldots, \theta(\alpha_{j,k_j}))$ se
+derivan a $\varepsilon$ en menos pasos.
+
+Como $G$ es non-combinatorial, cada argumento del cuerpo es una variable
+$X$, cuyo rango $\mu(X)$ es el mismo en todas sus ocurrencias
+(sección~\ref{subsec:coherencia}) y cumple $\proc{Range}(X, \mu) =
+\mu(X)$. Por hipótesis de inducción, $\theta(X)$ realiza $\mu(X)$ para
+toda variable $X$ del cuerpo; como $G$ es top-down non-erasing, lo mismo
+vale para toda variable de $c$.
+
+Sea $\alpha_{0,l}$ un argumento de la cabeza. Si $\alpha_{0,l} =
+\varepsilon$, entonces $(q_l, q'_l) = \proc{Range}(\varepsilon, \mu) =
+\mu(\varepsilon) = (p, p)$ por $\proc{Consistent}$, y $u_l = \varepsilon$
+realiza $(p, p)$. Si $\alpha_{0,l} = \beta_1 \cdots \beta_s$ con
+$\mu(\beta_t) = (p_t, p'_t)$, entonces cada $\theta(\beta_t)$ realiza
+$(p_t, p'_t)$: si $\beta_t$ es un terminal $a$, por la condición
+$\delta(p_t, a) = p'_t$ de $\proc{Consistent}$; si $\beta_t$ es una
+variable $X$, entonces $(p_t, p'_t) = \mu(X)$ por la coherencia
+(sección~\ref{subsec:coherencia}) y $\theta(\beta_t) = \theta(X)$
+realiza $\mu(X)$. Como $p'_t = p_{t+1}$ para $1 \le t < s$ por
+$\proc{Consistent}$, la concatenación $u_l = \theta(\beta_1) \cdots
+\theta(\beta_s)$ realiza $(p_1, p'_s) = \proc{Range}(\alpha_{0,l}, \mu) =
+(q_l, q'_l)$.
+\end{proof}
+
+Con los dos lemas se obtiene el teorema.
+
+\begin{teorema}\label{teo:correctitud}
+$L(G') = L(G) \cap L(A)$.
+\end{teorema}
+
+\begin{proof}
+\emph{Inclusión $L(G') \subseteq L(G) \cap L(A)$.} Sea $w \in L(G')$;
+entonces $S'(w)$ se deriva a $\varepsilon$. Las únicas cláusulas de
+cabeza $S'$ son $S'(X) \to S[(q_0, q_F)](X)$ con $q_F \in F$, así que el
+primer paso es $S'(w) \to S[(q_0, q_F)](w)$ para algún $q_F \in F$, y
+$S[(q_0, q_F)](w)$ se deriva a $\varepsilon$. Por el
+lema~\ref{lema:proyeccion}, $S(w)$ se deriva a $\varepsilon$ en $G$, esto
+es, $w \in L(G)$. Por el lema~\ref{lema:realizacion}, $w$ realiza
+$(q_0, q_F)$, es decir, $\hat\delta(q_0, w) = q_F$; como $q_F \in F$,
+$w \in L(A)$. Luego $w \in L(G) \cap L(A)$.
+
+\emph{Inclusión $L(G) \cap L(A) \subseteq L(G')$.} Sea
+$w = a_1 \cdots a_n \in L(G) \cap L(A)$. En la corrida de $A$ sobre $w$,
+los estados $\hat g_0, \ldots, \hat g_n$ cumplen $\hat g_0 = q_0$ y
+$\hat g_i = \delta(\hat g_{i-1}, a_i)$; como $w \in L(A)$,
+$\hat g_n \in F$. La subcadena que ocupa las posiciones $i$ a $j$ realiza
+el rango sobre $A$ $(\hat g_i, \hat g_j)$.
+
+Como $w \in L(G)$, hay una derivación de $S(w)$ a $\varepsilon$ en $G$,
+en la que cada predicado se aplica a subcadenas de $w$ en posiciones
+fijas. Al indexar cada predicado por los rangos sobre $A$ de sus
+argumentos se obtiene una derivación en $G'$, porque cada cláusula
+indexada pertenece a $P'$. En efecto, sea $B_0(\alpha_0) \to
+B_1(\alpha_1) \cdots B_m(\alpha_m)$ una cláusula instanciada en la
+derivación, y $\mu$ la asignación que a cada ocurrencia de símbolo le
+asigna el rango sobre $A$ de la posición que ocupa. La asignación $\mu$
+cumple $\proc{Consistent}$: símbolos contiguos de un argumento ocupan
+posiciones contiguas, así que el final de un rango coincide con el
+inicio del siguiente; para un terminal $a$ en la posición $i{+}1$ se
+tiene $\delta(\hat g_i, a) = \hat g_{i+1}$; un argumento vacío en la
+posición $i$ tiene el rango $(\hat g_i, \hat g_i)$; y las ocurrencias de
+una variable ocupan las mismas posiciones, luego les corresponde el
+mismo rango sobre $A$. Por tanto, la construcción produce la cláusula
+indexada, que pertenece a $P'$.
+
+La cabeza $S(w)$ se indexa por el rango $(\hat g_0, \hat g_n) =
+(q_0, \hat g_n)$. Como $\hat g_n \in F$, la cláusula
+$S'(X) \to S[(q_0, \hat g_n)](X)$ pertenece a $P'$, así que $S'(w)$ se
+deriva a $\varepsilon$ y $w \in L(G')$.
+\end{proof}
 
 \bibliographystyle{plain}
 \bibliography{../bib/referencias}
