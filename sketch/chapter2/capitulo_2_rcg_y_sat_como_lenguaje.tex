@@ -1,9 +1,12 @@
 \documentclass{report}
 \usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
+\usepackage[spanish, es-noshorthands]{babel}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
+\usepackage{tikz}
+\usetikzlibrary{automata, positioning}
+\interfootnotelinepenalty=10000
 
 \theoremstyle{definition}
 \newtheorem{definicion}{Definición}[chapter]
@@ -48,12 +51,12 @@ Antes de entrar a la presentación del formalismo, es necesario precisar
 una convención terminológica que rige a lo largo de todo el documento.
 El formalismo que se presenta en este capítulo corresponde, en la
 literatura, a las \textbf{gramáticas de concatenación de rango
-positivas} (PRCG), una de las dos variantes del formalismo general de
+positivas} (pRCG), una de las dos variantes del formalismo general de
 Boullier. La otra variante, las gramáticas de concatenación de rango con
 negación, admite cláusulas con predicados negados y no se utiliza en
 este trabajo. La restricción a la variante positiva es importante
 porque, como se establece más adelante, la clase de lenguajes
-reconocidos por una PRCG coincide exactamente con la clase $PTIME$, y
+reconocidos por una pRCG coincide exactamente con la clase $P$, y
 los resultados de los capítulos posteriores se apoyan en dicha
 caracterización. Para abreviar, a lo largo del documento se adopta el
 nombre \textbf{gramática de concatenación de rango} (RCG) para
@@ -211,6 +214,7 @@ Por ejemplo, con índices indexados en $0$, para la cadena $abcd$ el
 rango $(1, 3)$ representa la subcadena $bc$.
 
 \begin{definicion}
+\label{def:rcg}
 Una \textbf{gramática de concatenación de rango} se define como una
 $5$-tupla
 \[
@@ -228,8 +232,10 @@ donde:
       A(x_1, x_2, \dots, x_k) \to B_1(y_{1,1}, y_{1,2}, \dots, y_{1,m_1})
       \dots B_n(y_{n,1}, y_{n,2}, \dots, y_{n,m_n}),
     \]
-    donde $A, B_i \in N$, $x_i, y_{i,j} \in (V \cup T)^*$, y $k$ es la
-    aridad de $A$;
+    donde $A, B_i \in N$, $x_i, y_{i,j} \in (V \cup T)^*$, $n \ge 0$,
+    $k$ es la aridad de $A$ y $m_i$ es la aridad de $B_i$; cuando
+    $n = 0$, la parte derecha es la cadena vacía y la cláusula se
+    denomina terminal;
   \item $S \in N$ es el \textbf{predicado inicial} de la gramática, que
     siempre tiene aridad $1$.
 \end{itemize}
@@ -274,14 +280,21 @@ tomar el valor $b$, porque con ese valor el argumento $Xa$ no cubre la
 cadena completa.
 
 \begin{definicion}
-Las \textbf{gramáticas de concatenación de rango simple} (SRCG) son un
+Las \textbf{gramáticas de concatenación de rango simple} (sRCG) son un
 subconjunto de las RCG que restringen la forma de las cláusulas. Una
 RCG $G$ es \textbf{simple} si los argumentos del lado derecho de cada
 cláusula son variables distintas, y todas estas variables aparecen una
 sola vez en los argumentos del lado izquierdo.
 \end{definicion}
 
-Las SRCG son equivalentes a los sistemas lineales de reescritura libres
+Por ejemplo, la cláusula $A(XY) \to B(X)\, C(Y)$ cumple la condición de
+simplicidad: los argumentos del lado derecho, $X$ e $Y$, son variables
+distintas, y cada una aparece una sola vez en el lado izquierdo. La
+cláusula $A(X) \to B(X)\, C(X)$ no la cumple, porque la variable $X$
+aparece en dos argumentos del lado derecho; una RCG que la contenga no
+es simple.
+
+Las sRCG son equivalentes a los sistemas lineales de reescritura libres
 del contexto (LCFRS) introducidos en~\cite{vijayshanker1987lcfrs}. Este
 subconjunto se utiliza en~\cite{aguileralopez2016} para una variante
 del SAT denominada \textbf{Satisfacibilidad Booleana de Concatenación
@@ -334,131 +347,448 @@ A continuación se describen los pasos.
 \end{itemize}
 
 Una vez presentado el proceso de derivación, en la siguiente sección se
-analizan las propiedades del formalismo: clausura bajo operaciones sobre
-conjuntos, poder expresivo y complejidad del problema de la palabra.
+analizan las propiedades del formalismo: clausura bajo intersección,
+comparación con las gramáticas libres del contexto y complejidad del
+problema de la palabra.
 
 \section{Propiedades de las RCG}
 \label{sec:propiedades-rcg}
 
-Las RCG fueron diseñadas como un formalismo modular, en el sentido de
-que las operaciones de unión, intersección y complemento son cerradas
-para este formalismo~\cite{boullier1998proposal}. La ausencia de esta
-modularidad en las gramáticas libres del contexto fue una de las
-limitaciones que motivó la propuesta original de las RCG. En esta
-sección se describen las propiedades de clausura que demuestran la
-modularidad del formalismo y la caracterización en términos de
-complejidad.
+Las RCG son cerradas bajo unión, intersección y
+complemento~\cite{boullier1998proposal}. De estas tres operaciones, la
+clausura bajo intersección es la que importa para este trabajo. En el
+enfoque que
+se revisa en la sección~\ref{sec:antecedentes}, la satisfacibilidad de
+una fórmula se decide según si una intersección de dos lenguajes es
+vacía. En esta sección se presentan estas propiedades de clausura y la
+caracterización del reconocimiento en términos de complejidad. La
+clausura bajo intersección se usa en el capítulo~\ref{cap:interseccion},
+donde se construye una RCG cuyo lenguaje es esa intersección. El
+reconocimiento polinomial se usa en el
+capítulo~\ref{cap:vacio-interseccion-rcg-regular}, donde se caracteriza la
+decisión de su vacío.
 
-\begin{teorema}[Clausura bajo operaciones de conjuntos]
-Las RCG son cerradas bajo unión, intersección y complemento. La unión
-y la intersección de dos RCG da como resultado un formalismo que
-pertenece a las RCG, mientras que el formalismo resultante del
-complemento de una RCG es también una RCG.
+\begin{teorema}[Clausura bajo intersección]
+\label{teo:clausura-rcg}
+Si $L_1$ y $L_2$ son lenguajes reconocidos por RCG, entonces
+$L_1 \cap L_2$ también lo es~\cite{boullier1998proposal}.
 \end{teorema}
 
-La demostración del teorema anterior se realiza
-en~\cite{boullier1998proposal}.
-
-En cuanto al poder expresivo, las RCG son estrictamente más expresivas
-que las gramáticas libres del contexto. Por ejemplo, para todo
-$k \ge 2$, el lenguaje $L_{\mathrm{copy}}^k = \{ w^k \mid w \in \Sigma^*\}$
-es dependiente del contexto y no libre del
+Las RCG son más expresivas que las gramáticas libres del contexto. Por
+ejemplo, para todo $k \ge 2$, el lenguaje $L_{\mathrm{copy}}^k = \{ w^k
+\mid w \in \Sigma^*\}$ es dependiente del contexto y no libre del
 contexto~\cite{hopcroft2006introduction}, y se reconoce por una RCG. En
 particular, el lenguaje $L_{\mathrm{copy}}^3$ se reconoce por la
 gramática $G_{\mathrm{copy}}^3$ del ejemplo anterior.
 
-Una vez presentadas la clausura bajo operaciones de conjuntos y la
-expresividad de las RCG sobre las CFG, en la próxima subsección se
-analiza la caracterización del formalismo en términos de la clase
-$PTIME$, resultado que motiva la elección de las RCG en este trabajo.
+Una vez presentadas la clausura bajo intersección y la comparación con
+las gramáticas libres del contexto, en la próxima subsección se analiza
+el problema de la palabra de las RCG.
 
-\subsection{Complejidad y caracterización en términos de $PTIME$}
+\subsection{Complejidad y caracterización en términos de $P$}
 
-El siguiente resultado es el pilar que conecta a las RCG con la teoría
-de la complejidad y sobre el que se apoyan los resultados de los
-capítulos posteriores.
+El siguiente resultado es una caracterización del reconocimiento de las
+RCG en términos de complejidad.
 
-\begin{teorema}[Caracterización en términos de $PTIME$]
+\begin{teorema}[Caracterización en términos de $P$]
 \label{teo:prcg-ptime}
 Un lenguaje $L$ se reconoce por una RCG en su variante positiva si y
 solo si $L$ admite un algoritmo de reconocimiento que se ejecuta en
-tiempo polinomial.
+tiempo polinomial~\cite{bertsch2001rcg, boullier2000range}.
 \end{teorema}
 
-La demostración del teorema~\ref{teo:prcg-ptime} se realiza
-en~\cite{bertsch2001rcg, boullier2000range}. La dirección que afirma
-que todo lenguaje RCG está en $PTIME$ se sigue de la existencia de un
+La dirección que afirma
+que todo lenguaje RCG está en $P$ se sigue de la existencia de un
 algoritmo de reconocimiento polinomial para el formalismo, que se
 describe a continuación.
 
 El algoritmo de reconocimiento estándar para las RCG utiliza un proceso
 de memorización sobre las cadenas asignadas a los argumentos de los
 predicados~\cite{boullier1998proposal}. La cantidad máxima de rangos de
-una cadena de longitud $n$ es $n^2$, y la máxima aridad de un predicado
+una cadena de longitud $n$ es $O(n^2)$, y la máxima aridad de un predicado
 es constante, por lo que el proceso de memorización emplea una cantidad
 polinomial de estados. La complejidad del algoritmo es $O(|P|
 n^{2h(l+1)})$, donde $h$ es la máxima aridad de un predicado, $l$ es
 la máxima cantidad de predicados en el lado derecho de una cláusula y
 $n$ es la longitud de la cadena que se reconoce. El teorema establece,
-además, la dirección inversa: todo lenguaje en $PTIME$ admite una RCG
+además, la dirección inversa: todo lenguaje en $P$ admite una RCG
 que lo reconoce.
 
-El teorema~\ref{teo:prcg-ptime} es el resultado que motiva la elección
-de las RCG como formalismo de base para este trabajo. El alcance exacto
+El alcance exacto
 de la caracterización y sus consecuencias para la relación entre
-formalismos gramaticales y problemas de la clase $NP$ son el objeto
+formalismos gramaticales y el SAT son el objeto
 central de los capítulos posteriores.
 
 Una vez establecida la caracterización de las RCG como formalismo que
-reconoce exactamente la clase $PTIME$, en la siguiente sección se
-revisan los antecedentes directos del trabajo.
+reconoce exactamente la clase $P$, en la siguiente sección se
+revisan los antecedentes del trabajo.
 
 \section{Antecedentes en el estudio del SAT mediante formalismos de la teoría de lenguajes}
 \label{sec:antecedentes}
 
 El estudio del problema de la satisfacibilidad booleana mediante
-formalismos de la teoría de lenguajes cuenta con antecedentes directos
-en la Facultad de Matemática y Computación de la Universidad de La
-Habana. En esta sección se revisan los tres trabajos previos que
-constituyen el punto de partida del presente trabajo.
+formalismos de la teoría de lenguajes cuenta con antecedentes en la
+Facultad de Matemática y Computación de la Universidad de La Habana. El
+presente trabajo se apoya en dos de ellos: el problema de la
+satisfacibilidad booleana libre del contexto~\cite{fernandezarias2007},
+abreviado SATCF, y el de la satisfacibilidad booleana de concatenación
+de rango simple~\cite{aguileralopez2016}, abreviado SATSRC.
 
-En~\cite{fernandezarias2007} se propone una estrategia para resolver
-instancias del SAT mediante gramáticas libres del contexto. La
-estrategia consiste en tres pasos: asumir que todas las variables de la
-fórmula son distintas; construir un autómata finito que reconozca las
-cadenas de $0$ y $1$ que hacen verdadera la fórmula bajo ese supuesto;
-e intersectar el lenguaje regular obtenido con un lenguaje libre del
-contexto que obligue a que todas las instancias de una misma variable
-tomen el mismo valor. La intersección resultante es un lenguaje libre
-del contexto sobre el que el problema del vacío se decide en tiempo
-polinomial, con lo que el procedimiento completo opera en complejidad
-$O(n^3)$ para ciertas subclases del SAT.
+SATCF y SATSRC comparten una misma estrategia. A una fórmula booleana se
+le asocia un lenguaje regular que representa sus interpretaciones
+verdaderas, bajo el supuesto de que cada ocurrencia de variable se trata
+por separado. Sobre ese lenguaje se impone después que las ocurrencias
+de una misma variable tomen el mismo valor, mediante una gramática. La
+satisfacibilidad se decide según si la intersección de ambos lenguajes
+es vacía.
 
-En~\cite{aguileralopez2016} se extiende la idea anterior al emplear
-gramáticas de concatenación de rango simple en lugar de gramáticas
-libres del contexto. El autómata booleano asociado a la fórmula se
-intersecta con una SRCG que modela el orden de las variables, lo que
-amplía el conjunto de fórmulas booleanas que admiten solución mediante
-esta estrategia.
+La sección se organiza según esa estrategia. En la
+subsección~\ref{subsec:automata-interpretaciones} se describe el
+autómata con que se construye el lenguaje regular de las
+interpretaciones. En la subsección~\ref{subsec:consistencia-clase} se
+presentan la gramática que impone la consistencia, la clase de fórmulas
+que cada trabajo resuelve y la razón por la que las RCG son el
+siguiente formalismo de esta línea de trabajo.
 
-En~\cite{gomezmolina2025} se propone una estrategia diferente: en lugar de
-resolver el problema del vacío para el lenguaje de las interpretaciones
-que hacen verdadera a una fórmula dada, se construye el lenguaje de
-todas las fórmulas booleanas satisfacibles y se decide la
-satisfacibilidad mediante el problema de la palabra. Como parte de
-dicho trabajo se propone una gramática que reconocería el lenguaje de
-las fórmulas satisfacibles, y a partir de ella se derivan afirmaciones
-sobre la expresividad del formalismo con respecto a la clase $NP$.
+\subsection{El autómata de las interpretaciones}
+\label{subsec:automata-interpretaciones}
 
-Los tres trabajos anteriores conforman un programa de investigación
-acumulativo en la Facultad sobre la relación entre formalismos
-gramaticales y el SAT. El presente trabajo se inscribe en este programa
-y se propone examinar con precisión formal la clasificación de la
-gramática propuesta en~\cite{gomezmolina2025} dentro de la jerarquía de
-formalismos considerada en este capítulo, analizar las consecuencias de
-dicha clasificación para los resultados derivados, y explorar
-construcciones de RCG para variantes polinomiales del SAT. Estos
-objetivos se desarrollan en los capítulos siguientes.
+El lenguaje regular de las interpretaciones se construye mediante un
+autómata finito, el \textbf{autómata
+booleano}~\cite{fernandezarias2007}. Su alfabeto de entrada es
+$\{0,1\}$, cuyos símbolos son los valores de verdad: $1$ el verdadero y
+$0$ el falso. Cada ocurrencia de variable de la fórmula aporta uno de
+esos símbolos, según su valor. Una cadena de ceros y unos describe así
+una asignación a las ocurrencias, tratadas por separado, y se acepta
+cuando esa asignación hace verdadera la fórmula.
+
+El autómata de una sola ocurrencia consta de un estado inicial $q_0$ y
+dos estados más, $V$ y $F$. Al leer $1$ se pasa a $V$ y al leer $0$ se
+pasa a $F$. El estado $V$ es de aceptación y representa que la fórmula
+resulta verdadera; el estado $F$ representa lo contrario. La
+figura~\ref{fig:automata-base} lo muestra.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[->, >=stealth, shorten >=1pt, auto, semithick]
+  \node[state, initial] (q0) at (0,0) {$q_0$};
+  \node[state, accepting] (V) at (2.6,1) {$V$};
+  \node[state] (F) at (2.6,-1) {$F$};
+  \path (q0) edge node {$1$} (V)
+        (q0) edge node[swap] {$0$} (F);
+\end{tikzpicture}
+\caption{Autómata booleano de una ocurrencia de variable.}
+\label{fig:automata-base}
+\end{figure}
+
+Los autómatas de las ocurrencias se combinan según los operadores de la
+fórmula~\cite{fernandezarias2007}. El autómata de una fórmula compuesta
+se obtiene de los autómatas de sus subfórmulas, según el operador
+principal.
+
+La negación se aplica a una subfórmula. Sea $A$ una subfórmula y $B$ su
+autómata booleano; con la negación se intercambian el estado de
+aceptación $V$ y el de rechazo $F$, de modo que el autómata de $\neg A$
+es $B$ con $V$ como no aceptante y $F$ como aceptante. Cada cadena que
+hace verdadera a $A$ hace falsa a $\neg A$, y al revés. La
+figura~\ref{fig:automata-negacion} lo muestra.
+
+\begin{figure}[ht]
+\centering
+\begin{tabular}{cc}
+\begin{tikzpicture}[->, >=stealth, shorten >=1pt, auto, semithick]
+  \node[state, initial] (q0) at (0,0) {$q_0$};
+  \node[draw, rounded corners, minimum width=0.8cm, minimum height=0.9cm] (B) at (1.7,0) {$B$};
+  \node[state, accepting] (V) at (3.5,0.8) {$V$};
+  \node[state] (F) at (3.5,-0.8) {$F$};
+  \draw (q0) -- (B);
+  \draw (B) -- (V);
+  \draw (B) -- (F);
+\end{tikzpicture}
+&
+\begin{tikzpicture}[->, >=stealth, shorten >=1pt, auto, semithick]
+  \node[state, initial] (q0) at (0,0) {$q_0$};
+  \node[draw, rounded corners, minimum width=0.8cm, minimum height=0.9cm] (B) at (1.7,0) {$B$};
+  \node[state] (V) at (3.5,0.8) {$V$};
+  \node[state, accepting] (F) at (3.5,-0.8) {$F$};
+  \draw (q0) -- (B);
+  \draw (B) -- (V);
+  \draw (B) -- (F);
+\end{tikzpicture}
+\\[0.4em]
+{\small (a) autómata de $A$} & {\small (b) autómata de $\neg A$}
+\end{tabular}
+\caption{La negación intercambia el papel de $V$ y $F$: en $\neg A$ el
+estado aceptante es $F$.}
+\label{fig:automata-negacion}
+\end{figure}
+
+La conjunción y la disyunción se aplican a dos subfórmulas. Sean $A_1$ y
+$A_2$ dos subfórmulas y $B_1$, $B_2$ sus autómatas booleanos, con estados
+de aceptación $V_1$, $V_2$ y de rechazo $F_1$, $F_2$.
+
+En la disyunción $A_1 \vee A_2$ se concatenan los autómatas de $A_1$ y de
+$A_2$. Si en el autómata de $A_1$ se alcanza el estado $V_1$, la
+disyunción ya resulta verdadera; desde ahí, a lo largo de un \textbf{camino
+de extensión}\footnote{Una sucesión de estados en la que se consumen los
+símbolos restantes de la cadena y se llega al estado ya determinado,
+cualquiera que sea su valor.}, se consumen los símbolos de $A_2$ hasta el
+estado $V$ del autómata combinado. Si se alcanza el estado $F_1$, el valor depende de
+$A_2$, y por eso el estado $F_1$ se une con el estado inicial del
+autómata de $A_2$; los estados $V_2$ y $F_2$ pasan a ser los del autómata
+combinado. La figura~\ref{fig:automata-disyuncion} lo muestra.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[->, >=stealth, shorten >=1pt, auto, semithick]
+  \node[state, initial] (q0) at (0,0) {$q_0$};
+  \node[draw, rounded corners, minimum width=0.8cm, minimum height=0.9cm] (B1) at (1.7,0) {$B_1$};
+  \node[state] (V1) at (3.4,1.1) {$V_1$};
+  \node[state] (F1) at (3.4,-1.1) {$F_1$};
+  \node[draw, rounded corners, minimum width=0.8cm, minimum height=0.9cm] (B2) at (5.1,-1.1) {$B_2$};
+  \node[state, accepting] (V) at (7.6,1.1) {$V$};
+  \node[state] (F) at (7.6,-1.1) {$F$};
+  \draw (q0) -- (B1);
+  \draw (B1) -- (V1);
+  \draw (B1) -- (F1);
+  \draw[dashed] (V1) -- (V);
+  \draw (F1) -- (B2);
+  \draw (B2) -- (V);
+  \draw (B2) -- (F);
+\end{tikzpicture}
+\caption{Disyunción $A_1 \vee A_2$. Al alcanzar $V_1$, un camino de
+extensión (flecha discontinua) lleva al estado aceptante $V$; al
+alcanzar $F_1$, el cómputo continúa en $B_2$.}
+\label{fig:automata-disyuncion}
+\end{figure}
+
+La conjunción $A_1 \wedge A_2$ es simétrica. Si en el autómata de $A_1$
+se alcanza el estado $F_1$, la conjunción ya resulta falsa, y a lo largo
+de un camino de extensión se consumen los símbolos de $A_2$ hasta el
+estado $F$ del autómata combinado. Si se alcanza el estado $V_1$, el
+valor depende de $A_2$, y el estado $V_1$ se une con el estado inicial
+del autómata de $A_2$. La figura~\ref{fig:automata-conjuncion} lo
+muestra.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[->, >=stealth, shorten >=1pt, auto, semithick]
+  \node[state, initial] (q0) at (0,0) {$q_0$};
+  \node[draw, rounded corners, minimum width=0.8cm, minimum height=0.9cm] (B1) at (1.7,0) {$B_1$};
+  \node[state] (V1) at (3.4,1.1) {$V_1$};
+  \node[state] (F1) at (3.4,-1.1) {$F_1$};
+  \node[draw, rounded corners, minimum width=0.8cm, minimum height=0.9cm] (B2) at (5.1,1.1) {$B_2$};
+  \node[state, accepting] (V) at (7.6,1.1) {$V$};
+  \node[state] (F) at (7.6,-1.1) {$F$};
+  \draw (q0) -- (B1);
+  \draw (B1) -- (V1);
+  \draw (B1) -- (F1);
+  \draw (V1) -- (B2);
+  \draw[dashed] (F1) -- (F);
+  \draw (B2) -- (V);
+  \draw (B2) -- (F);
+\end{tikzpicture}
+\caption{Conjunción $A_1 \wedge A_2$. Al alcanzar $F_1$, un camino de
+extensión (flecha discontinua) lleva al estado $F$; al alcanzar $V_1$,
+el cómputo continúa en $B_2$.}
+\label{fig:automata-conjuncion}
+\end{figure}
+
+Por ejemplo, para la fórmula $A = x_1 \wedge (x_2 \vee x_1)$, cuya
+secuencia de ocurrencias es $x_1\,x_2\,x_1$, se construye primero el
+autómata de cada subfórmula, $x_1$ y $x_2 \vee x_1$. El de
+$x_1$ es el de una sola ocurrencia; el de $x_2 \vee x_1$ se obtiene por
+la regla de la disyunción. La figura~\ref{fig:automata-partes} muestra
+ambos.
+
+\begin{figure}[ht]
+\centering
+\begin{tabular}{cc}
+\begin{tikzpicture}[->, >=stealth, shorten >=1pt, auto, semithick]
+  \node[state, initial] (q0) at (0,0) {$q_0$};
+  \node[state, accepting] (V) at (2.4,0.9) {$V$};
+  \node[state] (F) at (2.4,-0.9) {$F$};
+  \draw (q0) edge node {$1$} (V)
+        (q0) edge node[swap] {$0$} (F);
+\end{tikzpicture}
+&
+\begin{tikzpicture}[->, >=stealth, shorten >=1pt, auto, semithick]
+  \node[state, initial] (q1) at (0,0) {$q_1$};
+  \node[state] (q3) at (2.4,1.1) {$q_3$};
+  \node[state] (q2) at (2.4,-1.1) {$q_2$};
+  \node[state, accepting] (V) at (4.8,1.1) {$V$};
+  \node[state] (F) at (4.8,-1.1) {$F$};
+  \draw (q1) edge node {$1$} (q3)
+        (q1) edge node[swap] {$0$} (q2)
+        (q3) edge node {$0,1$} (V)
+        (q2) edge node {$1$} (V)
+        (q2) edge node[swap] {$0$} (F);
+\end{tikzpicture}
+\\[0.4em]
+{\small (a) autómata de $x_1$} & {\small (b) autómata de $x_2 \vee x_1$}
+\end{tabular}
+\caption{Autómatas de $x_1$ y de $x_2 \vee x_1$, las dos subfórmulas de
+$A$.}
+\label{fig:automata-partes}
+\end{figure}
+
+Al combinar los dos por la regla de la conjunción se obtiene el autómata
+de $A$: desde la rama verdadera de $x_1$ se entra en el autómata de
+$x_2 \vee x_1$, y desde la rama falsa se llega al estado $F$ por un
+camino de extensión. La figura~\ref{fig:automata-booleano} lo muestra.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[->, >=stealth, shorten >=1pt, auto, semithick]
+  \node[state, initial] (q0) at (0,0) {$q_0$};
+  \node[state] (q1) at (2.6,1.3) {$q_1$};
+  \node[state] (q4) at (2.6,-1.7) {$q_4$};
+  \node[state] (q3) at (5.2,2.3) {$q_3$};
+  \node[state] (q2) at (5.2,0.3) {$q_2$};
+  \node[state] (q5) at (5.2,-1.7) {$q_5$};
+  \node[state, accepting] (V) at (7.8,1.3) {$V$};
+  \node[state] (F) at (7.8,-1.7) {$F$};
+  \path
+    (q0) edge node {$1$} (q1)
+    (q0) edge node[swap] {$0$} (q4)
+    (q1) edge node {$1$} (q3)
+    (q1) edge node {$0$} (q2)
+    (q3) edge node {$0,1$} (V)
+    (q2) edge node {$1$} (V)
+    (q2) edge node[swap] {$0$} (F)
+    (q4) edge node {$0,1$} (q5)
+    (q5) edge node {$0,1$} (F);
+\end{tikzpicture}
+\caption{Autómata booleano de la fórmula $A = x_1 \wedge (x_2 \vee
+x_1)$. El estado $V$ acepta las cadenas que hacen verdadera la fórmula
+cuando cada ocurrencia se trata por separado.}
+\label{fig:automata-booleano}
+\end{figure}
+
+Un camino del estado inicial a $V$ corresponde a una asignación que hace
+verdadera la fórmula cuando cada ocurrencia se trata por separado. Por
+ejemplo, con la cadena $110$ se llega del estado inicial a $V$; en ella
+se asigna $1$ a la primera ocurrencia de $x_1$, $1$ a $x_2$ y $0$ a la
+segunda ocurrencia de $x_1$, valores con los que $x_1 \wedge (x_2 \vee
+x_1)$ resulta verdadera. En esa misma cadena, las dos ocurrencias de
+$x_1$ no toman el mismo valor, algo que no ocurre en ninguna interpretación.
+El autómata booleano de una fórmula con $n$ ocurrencias de variable
+tiene $O(n^2)$ estados~\cite{fernandezarias2007}. En él todas las
+ocurrencias se tratan por separado, incluso las de una misma variable, y
+por eso hace falta un segundo mecanismo que imponga la consistencia
+entre las ocurrencias.
+
+\subsection{La consistencia entre ocurrencias y la clase de fórmulas}
+\label{subsec:consistencia-clase}
+
+El segundo mecanismo obliga a que las ocurrencias de una misma variable
+tomen el mismo valor. Una cadena de ceros y unos, con un símbolo por
+ocurrencia, es \textbf{consistente} si en las posiciones de cada variable
+lleva siempre el mismo valor. La gramática genera las cadenas
+consistentes de la longitud dada, y la intersección de ese lenguaje con
+el del autómata booleano contiene las interpretaciones verdaderas de la
+fórmula. La satisfacibilidad equivale entonces a que esa intersección no
+sea vacía. SATCF y SATSRC se diferencian en el formalismo de esa
+gramática, y con ello en la clase de fórmulas que resuelven.
+
+En SATCF la consistencia se impone con una gramática libre del contexto,
+equivalente a una pila~\cite{fernandezarias2007}. En la pila se guarda
+el valor de una variable en su primera ocurrencia y se compara en las
+siguientes. Como en una pila se accede a los valores en orden inverso al
+de guardado, con este esquema la consistencia solo se verifica cuando
+las ocurrencias están bien anidadas: si entre dos ocurrencias
+consecutivas de una variable aparece una ocurrencia de otra, todas las
+ocurrencias de esa otra deben caer entre las dos primeras. Una secuencia
+de ocurrencias con esa propiedad tiene un \textbf{orden libre del
+contexto}~\cite{fernandezarias2007}. Por ejemplo, en la secuencia
+$x_1\,x_2\,x_2\,x_1$ las dos ocurrencias de $x_2$ caen entre las de
+$x_1$; la figura~\ref{fig:orden-ocurrencias}(a) muestra ese anidamiento.
+Con SATCF se resuelven en tiempo $O(n^3)$ las fórmulas cuyo orden es de
+ese tipo.
+
+En SATSRC la consistencia se impone con una gramática de concatenación
+de rango simple~\cite{aguileralopez2016}. Frente a la pila, que sigue un
+solo fragmento de la cadena, una sRCG admite varios a la vez, por lo que
+admite cruces entre ocurrencias que el orden libre del contexto excluye.
+Una secuencia para la que existe una sRCG de tamaño polinomial que
+genera sus cadenas consistentes tiene un \textbf{orden de concatenación
+de rango simple}~\cite{aguileralopez2016}. Toda secuencia con orden
+libre del contexto lo tiene, y además lo tienen secuencias con cruces.
+Por ejemplo, en la secuencia $x_2\,x_1\,x_3\,x_2\,x_1$ las ocurrencias de
+$x_2$ y las de $x_1$ se cruzan, de modo que ese orden no es libre del
+contexto pero sí de concatenación de rango simple. La
+figura~\ref{fig:orden-ocurrencias}(b) muestra ese cruce.
+Con SATSRC se resuelven esas fórmulas en tiempo $O(n^k)$, donde $k$ es la
+aridad de la sRCG, así que el grado del polinomio crece con la aridad
+necesaria para el cruce.
+
+\begin{figure}[ht]
+\centering
+\begin{tabular}{cc}
+\begin{tikzpicture}[baseline=(current bounding box.south)]
+  \node (a1) at (0,0) {$x_1$};
+  \node (a2) at (0.9,0) {$x_2$};
+  \node (a3) at (1.8,0) {$x_2$};
+  \node (a4) at (2.7,0) {$x_1$};
+  \draw (a1) to[bend left=45] (a4);
+  \draw (a2) to[bend left=55] (a3);
+\end{tikzpicture}
+&
+\begin{tikzpicture}[baseline=(current bounding box.south)]
+  \node (b1) at (0,0) {$x_2$};
+  \node (b2) at (0.9,0) {$x_1$};
+  \node (b3) at (1.8,0) {$x_3$};
+  \node (b4) at (2.7,0) {$x_2$};
+  \node (b5) at (3.6,0) {$x_1$};
+  \draw (b1) to[bend left=45] (b4);
+  \draw (b2) to[bend left=45] (b5);
+\end{tikzpicture}
+\\[0.6em]
+{\small (a) orden libre del contexto} & {\small (b) orden con cruce}
+\end{tabular}
+\caption{Arcos que unen las ocurrencias de cada variable. En (a) los
+arcos se anidan; en (b), los de $x_2$ y los de $x_1$ se cruzan.}
+\label{fig:orden-ocurrencias}
+\end{figure}
+
+Una parte de las fórmulas ya se resuelve en tiempo polinomial. Las que
+no tienen cruces entre ocurrencias tienen orden libre del contexto y se
+deciden con SATCF; al aparecer cruces, la decisión sigue siendo
+polinomial con SATSRC mientras la aridad necesaria esté acotada. El
+problema empieza cuando no lo está: el exponente de la cota $O(n^k)$
+crece con la cantidad de ocurrencias y la cota deja de ser polinomial.
+
+Para codificar la consistencia de esas fórmulas hace falta la
+no-linealidad. En una sRCG cada variable aparece una sola vez, de modo
+que, para igualar dos ocurrencias, hay que seguirlas en argumentos
+separados de la cláusula, y la cantidad de argumentos —la aridad— crece
+con el cruce. Con la no-linealidad esa igualdad se expresa de forma
+directa: una misma variable aparece más de una vez en la parte derecha
+de una cláusula, y las subcadenas en que aparece deben coincidir, sin
+que la aridad tenga que crecer.
+
+La no-linealidad es justo la diferencia entre una sRCG y una RCG. Sin
+ella se reconocen los mismos lenguajes que con una sRCG, así que no se
+obtiene ninguna fórmula nueva. Por eso la siguiente clase natural de
+esta línea son las RCG.\footnote{Entre las sRCG y las RCG está pMCFG, con una forma
+restringida de no-linealidad. Este trabajo no la aborda: ya existe un
+trabajo de la Facultad en esa dirección~\cite{artechemunoz2026}.}
+
+La clase es cerrada bajo intersección y el reconocimiento de la
+consistencia con una RCG sigue siendo polinomial, según los
+teoremas~\ref{teo:clausura-rcg} y~\ref{teo:prcg-ptime}; pero el SAT no se
+decide por el reconocimiento, sino por el vacío de la intersección. En SATCF y SATSRC
+esa decisión es polinomial porque el vacío de las CFG y las sRCG lo es,
+no por una estrategia particular. Con la no-linealidad de las RCG la
+aridad ya no crece con el cruce, pero el vacío de la intersección deja de
+ser polinomial, y ahí queda concentrada la dificultad.
+
+En este capítulo se presentaron las gramáticas de concatenación de
+rango, con su reconocimiento polinomial y su clausura bajo intersección,
+y el esquema por intersección con que se decide la satisfacibilidad en
+SATCF y SATSRC. En el próximo capítulo se estudia ese vacío: se
+construye un procedimiento explícito de decisión y se caracteriza su
+costo.
 
 \bibliographystyle{plain}
 \bibliography{../bib/referencias}

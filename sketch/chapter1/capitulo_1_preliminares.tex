@@ -172,7 +172,7 @@ restricciones sobre sus reglas de producción. Cada regla tiene la forma
 $\alpha \to \beta$, donde $\alpha, \beta \in (N \cup \Sigma)^*$ y
 $\alpha \neq \varepsilon$. Todo lenguaje generado por una gramática
 irrestricta se denomina \textbf{lenguaje recursivamente
-enumerable}~[REF].
+enumerable}~\cite{hopcroft2006introduction}.
 
 El segundo tipo son las \textbf{gramáticas dependientes del contexto}.
 En estas, cada regla tiene la forma $\alpha A \gamma \to \alpha \beta \gamma$,
@@ -243,8 +243,8 @@ El caso $k = 1$ corresponde a $L_{\mathrm{copy}}^1 = \Sigma^*$, que es
 un lenguaje regular. Para $k \ge 2$, el lenguaje $L_{\mathrm{copy}}^k$
 no es libre del contexto, aunque sí es dependiente del contexto
 \cite{hopcroft2006introduction}. En el capítulo~\ref{cap:rcg-sat} se
-emplea este lenguaje para ilustrar el poder expresivo de las gramáticas
-de concatenación de rango.
+emplea este lenguaje para ilustrar que las gramáticas de concatenación
+de rango son más expresivas que las gramáticas libres del contexto.
 
 La relación de inclusión entre las clases de la jerarquía se ilustra
 en la figura~\ref{fig:chomsky}: una clase está contenida en otra
@@ -283,7 +283,7 @@ regulares~\cite{hopcroft2006introduction}.
 Un \textbf{autómata finito}~\cite{hopcroft2006introduction} se define
 como una $5$-tupla
 \[
-  \mathcal{A} = (Q, \Sigma, \delta, q_0, F),
+  A = (Q, \Sigma, \delta, q_0, F),
 \]
 donde $Q$ es un conjunto finito de \textbf{estados}, $\Sigma$ es un
 alfabeto llamado \textbf{alfabeto de entrada},
@@ -518,13 +518,14 @@ problema XOR-SAT admite solución en tiempo polinomial al
 transformarlo en un sistema de ecuaciones lineales módulo 2 y aplicar
 eliminación de Gauss~\cite{schaefer1978}.
 
-Este trabajo busca ampliar el conjunto de subclases del SAT con
-solución en tiempo polinomial mediante las gramáticas de concatenación de rango.
-En el próximo capítulo se presentan estas gramáticas, se analizan sus
-propiedades y limitaciones, y se revisan los antecedentes directos
-que abordan el SAT mediante formalismos de la teoría de lenguajes,
-con énfasis en los trabajos previos realizados en la Facultad de
-Matemática y Computación de la Universidad de La Habana.
+Las variantes anteriores se obtienen al restringir la forma de las
+cláusulas. Otra forma de ampliar las subclases del SAT con solución en
+tiempo polinomial consiste en modelar el problema mediante formalismos
+de la teoría de lenguajes. En este capítulo se introdujeron las nociones
+en que se apoya ese enfoque: la teoría de lenguajes, el autómata finito,
+la complejidad computacional y el problema SAT. En el próximo capítulo
+se presentan las gramáticas de concatenación de rango y los antecedentes
+en el estudio del SAT con teoría de lenguajes.
 
 \bibliographystyle{plain}
 \bibliography{../bib/referencias}
