@@ -27,3 +27,8 @@
 *.alg
 *.ist
 *.xdv
+*.lol
+*.nlo
+*.nls
+*.nlg
+*.bbl-SAVE-ERROR
