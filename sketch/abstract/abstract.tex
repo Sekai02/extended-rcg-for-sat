@@ -1,0 +1,42 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\begin{document}
+
+\chapter*{Abstract}
+
+The Boolean satisfiability problem (SAT) is studied in this work from
+formal language theory. Within the line of research to which it belongs,
+the satisfiability of a formula reduces to the emptiness of the
+intersection of a regular language of interpretations with a grammar that
+enforces consistency among the occurrences of each Boolean variable. With
+less expressive grammars this reduction is limited to formulas with a
+certain order of occurrences: a context-free grammar admits no crossings,
+and with a simple range concatenation grammar (sRCG) the arity grows with
+the formula. In an attempt to solve more formulas in polynomial time, the
+problem is approached with range concatenation grammars (RCG): with their
+non-linearity the consistency of more formulas is modeled while the arity
+is kept minimal, as shown by an RCG that recognizes the consistency of
+any SAT formula with arity one; but with that same non-linearity the
+direct guarantee that the emptiness is polynomial is lost. A brute-force
+algorithm that decides this emptiness is given: the strings of the
+automaton are enumerated and recognized with the RCG; its cost is
+exponential, so enumeration is not a feasible route, but it shows why the
+problem is better studied on a single object. This object, the product
+grammar, is constructed, and its size and the cost of constructing it are
+characterized; on it the emptiness can be addressed: finding a polynomial
+method for all formulas, which would imply $P = NP$; proving that none
+exists; or finding one only by restricting the modeling to a subclass.
+Although its size is not polynomial, it remains an object of study:
+removing its non-productive clauses and analyzing the cost of deciding
+the emptiness are proposed as future work.
+
+\vspace{1em}
+\noindent\textbf{Keywords:} boolean satisfiability, range concatenation
+grammars, emptiness of the intersection, finite regular language,
+non-linearity.
+
+\end{document}

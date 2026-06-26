@@ -1,0 +1,45 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, es-noshorthands]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\begin{document}
+
+\chapter*{Resumen}
+
+El problema de la satisfacibilidad booleana (SAT) se estudia en este
+trabajo desde la teoría de lenguajes formales. En la línea de
+investigación en la que se inscribe, la satisfacibilidad de una fórmula
+se reduce al vacío de la intersección de un lenguaje regular de
+interpretaciones con una gramática que impone la consistencia entre las
+ocurrencias de cada variable booleana.
+Con gramáticas menos expresivas esa reducción se limita a fórmulas con
+cierto orden de las ocurrencias: una gramática libre del contexto no
+admite cruces, y en una de concatenación de rango simple (sRCG) la aridad
+crece con la fórmula. En un intento de resolver más fórmulas en tiempo
+polinomial se ataca el problema con gramáticas de concatenación de rango
+(RCG): con su no linealidad se modela la consistencia de más fórmulas y
+se mantiene mínima la aridad, como se muestra con una RCG que reconoce la
+consistencia de cualquier fórmula de SAT con aridad uno; pero por esa
+misma no linealidad se pierde la garantía directa de que el vacío sea
+polinomial.
+Se da un algoritmo de fuerza bruta que decide ese vacío: se enumeran las
+cadenas del autómata y se reconocen con la RCG; su costo es exponencial,
+así que
+no es una vía factible, pero muestra por qué conviene estudiar el
+problema sobre un único objeto. Se construye ese objeto, la gramática
+producto, y se caracterizan su tamaño y el costo de construirlo; sobre él
+se puede abordar el vacío: hallar un método polinomial para todas las
+fórmulas, lo que implicaría $P = NP$; probar que no existe; o hallarlo al
+restringir a una subclase. Aunque su
+tamaño no es polinomial, queda como objeto de estudio: eliminar sus
+cláusulas no productivas y analizar el costo de decidir el vacío se
+proponen como trabajo futuro.
+
+\vspace{1em}
+\noindent\textbf{Palabras clave:} satisfacibilidad booleana, gramáticas
+de concatenación de rango, vacío de la intersección, lenguaje regular
+finito, no linealidad.
+
+\end{document}

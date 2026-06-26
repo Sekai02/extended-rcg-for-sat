@@ -1,0 +1,94 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, es-noshorthands]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+\begin{document}
+
+\chapter*{Conclusiones y recomendaciones}
+
+En este trabajo se estudió el vacío de la intersección de una gramática
+de concatenación de rango con un lenguaje regular finito como marco para
+el problema de la satisfacibilidad booleana.
+
+En el capítulo~\ref{cap:rcg-sat} se presentaron las gramáticas de
+concatenación de rango y los antecedentes en que el SAT se aborda como
+la intersección de un lenguaje regular de interpretaciones con una
+gramática que impone la consistencia entre las ocurrencias de cada
+variable, en SATCF y SATSRC.
+
+En el capítulo~\ref{cap:vacio-interseccion-rcg-regular} se definió el
+problema del vacío de la intersección de una RCG con un lenguaje regular
+finito y se dio un algoritmo de decisión, en el que se enumeran las
+cadenas del autómata y se reconoce cada una con la gramática. Con él se
+decide el problema, pero su costo es exponencial cuando la cantidad de
+cadenas aceptadas por el autómata es exponencial, y polinomial cuando esa
+cantidad está acotada por un polinomio.
+
+En el capítulo~\ref{cap:modelacion-sat} ese resultado se aplicó al SAT: a
+cada fórmula booleana se le asocian un autómata booleano y una gramática
+de consistencia, de modo que la fórmula es satisfacible si y solo si la
+intersección de sus lenguajes no es vacía. Decidir ese vacío es el SAT,
+y para una RCG con un autómata finito acíclico ese problema es
+NP-completo~\cite{bertsch2001rcg}.
+
+En el capítulo~\ref{cap:interseccion} se construyó la gramática producto
+$G'$ de una RCG $G$ y un autómata finito acíclico $A$, con
+$L(G') = L(G) \cap L(A)$, y se demostró su correctitud. La gramática
+producto es una RCG sobre la que estudiar el vacío de la intersección,
+pero su tamaño puede ser exponencial: para la gramática de consistencia y
+el autómata booleano de una fórmula con $n$ ocurrencias de variable
+booleana, $|G'| = 2^{O(n\log n)}$, y las cláusulas de la consistencia son
+el término dominante.
+
+En conjunto, estos resultados son un marco uniforme para el SAT en torno
+a una sola noción: el vacío de la intersección de una RCG con un lenguaje
+regular finito.
+
+La gramática de consistencia del capítulo~\ref{cap:modelacion-sat} tiene
+aridad uno, para cualquier fórmula, gracias a la no linealidad. Para
+abarcar más fórmulas que SATSRC sin que
+la aridad crezca con los cruces entre ocurrencias hace falta la no
+linealidad, pues sin ella se reconocen los mismos lenguajes que con una
+sRCG, como se vio en el capítulo~\ref{cap:rcg-sat}. Por esa misma no
+linealidad la modelación queda fuera de las subclases conocidas con vacío
+de la intersección polinomial, como SATCF y SATSRC, y se pierde la
+garantía directa de que el vacío sea polinomial. Si solo se modelara una subclase
+de fórmulas, el vacío podría ser polinomial sin que ello implique
+$P = NP$; decidirlo en tiempo polinomial para todas las fórmulas sí
+implicaría $P = NP$.
+
+La gramática producto del capítulo~\ref{cap:interseccion} es el objeto
+sobre el que abordar ese vacío: hallar un método polinomial para todas
+las fórmulas, probar que no existe, o hallarlo solo al restringir la
+modelación a una subclase. Para decidir el vacío en tiempo polinomial
+sobre la gramática producto hace falta eliminar antes sus predicados y
+cláusulas no productivos.
+
+A partir del trabajo realizado se proponen las siguientes líneas de
+investigación:
+
+\begin{itemize}
+  \item Eliminar de la gramática producto los predicados y cláusulas no
+    productivos y analizar la complejidad de decidir el vacío de la
+    intersección sobre la gramática resultante.
+  \item Buscar subclases no lineales de RCG cuyo vacío de la
+    intersección con un lenguaje regular finito se decida en tiempo
+    polinomial, y estudiar si la gramática de consistencia se adapta a
+    alguna de ellas.
+  \item Modificar las RCG para obtener un formalismo cuyo vacío de la
+    intersección con un lenguaje regular finito se decida en tiempo
+    polinomial y con el que se exprese la consistencia de fórmulas
+    distintas de las que ya se modelan con SATCF y SATSRC.
+  \item Caracterizar las fórmulas booleanas cuyo autómata booleano tiene
+    una cantidad de caminos aceptantes acotada por un polinomio, donde el
+    SAT se decide en tiempo polinomial con la enumeración del
+    capítulo~\ref{cap:vacio-interseccion-rcg-regular}.
+\end{itemize}
+
+\bibliographystyle{plain}
+\bibliography{../bib/referencias}
+
+\end{document}

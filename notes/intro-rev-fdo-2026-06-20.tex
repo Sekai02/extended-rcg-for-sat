@@ -1,0 +1,144 @@
+\documentclass{report}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish, es-noshorthands]{babel}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+\usepackage[dvipsnames]{xcolor}
+\usepackage[lmargin=2.5cm, rmargin=5cm]{geometry}
+\input{../../../../word-comments.tex}
+
+
+\begin{document}
+
+\chapter*{Introducción}
+
+El problema de la satisfacibilidad booleana (SAT) ocupa un lugar
+central en las ciencias de la computación. Fue el primer problema que
+se demostró NP-completo en 1971, un resultado de Stephen
+Cook~\cite{cook1971}. Por tanto, \comment{todo problema de la clase
+  NP}{¿de la clase NP o de la clase NP-completo?} se reduce a él, y
+decidirlo en tiempo polinomial resolvería si $P = NP$. A la vez, el
+SAT tiene aplicaciones en la criptografía \agregaesto{[REF]}, el diseño y la verificación
+de circuitos \agregaesto{[REF]}, los problemas de satisfacción de restricciones (CSP) \agregaesto{[REF]} y
+la programación lógica~\cite{gu1997sat}.  Por eso interesa entender
+qué lo hace difícil y delimitar los casos que se resuelven en tiempo
+polinomial, como 2-SAT, Horn-SAT y XOR-SAT~\cite{schaefer1978}.
+
+En una línea de investigación de la Facultad de Matemática y
+Computación de la Universidad de La Habana, el SAT se aborda desde la
+teoría de lenguajes formales. A cada fórmula booleana se le asocian un
+lenguaje regular \agregaesto{y una gramática.}\cambio{, cuyas}{ Las}
+cadenas \agregaesto{del lenguaje regular} representan las
+interpretaciones de sus variables \agregaesto{que satisfacen la
+  fórmula, asumiendo que no hay variables repetidas}, y \cambio{una gramatica
+que}{la gramática} impone la consistencia: que las ocurrencias de una misma variable
+tomen el mismo valor. La satisfacibilidad de la fórmula equivale
+entonces a que la intersección de ambos lenguajes no sea vacía.  Así,
+el SAT se traduce en un problema sobre lenguajes formales, y la
+dificultad de decidirlo se traslada al vacío de esa intersección.
+
+Esta línea cuenta con antecedentes según el formalismo de la gramática de
+consistencia. En la satisfacibilidad booleana libre del contexto (SATCF),
+la consistencia se impone con una gramática libre del contexto, y el SAT
+se decide en tiempo polinomial para las fórmulas con orden de ocurrencias
+libre del contexto~\cite{fernandezarias2007}. En la satisfacibilidad
+booleana de concatenación de rango simple (SATSRC), la consistencia se
+impone con una gramática de concatenación de rango simple, que admite
+cruces entre ocurrencias, y el SAT se decide en tiempo polinomial
+mientras la aridad necesaria esté acotada~\cite{aguileralopez2016}. Las
+gramáticas de concatenación de rango (RCG) son el siguiente formalismo de
+esta línea. \agregaesto{NUEVO PÁRRAFO.}
+
+\agregaesto{AQUÍ DEBERÍAS PONER UNA BREVE DESCRIPCIÓN DE QUÉ SON LAS
+  GRAMÁTICAS DE CONCATENACIÓN DE RANGO}
+
+Con las RCG lineales se reconocen los mismos lenguajes que con las sRCG,
+de modo que con ellas se modela la consistencia de las mismas fórmulas.
+Para modelar la consistencia de más fórmulas, y resolver así más
+instancias del SAT, hace falta la no linealidad de las RCG~\cite{boullier1998proposal}.
+
+\comment{Al pasar}{¿al pasar qué cosa a las RCG?} a las RCG no se conserva la
+tratabilidad de los formalismos anteriores. Bertsch y Nederhof demostraron que
+el vacío de la intersección de una RCG con un lenguaje regular arbitrario es
+indecidible, y que, cuando el lenguaje regular es finito, decidir si la
+intersección es no vacía es NP-completo~\cite{bertsch2001rcg}. El lenguaje
+regular de las interpretaciones de una fórmula es finito, así que este enfoque
+queda en el caso decidible. \agregaesto{NUEVO PÁRRAFO.}
+
+Con la no linealidad de las RCG se expresa la consistencia de cualquier fórmula,
+sin la restricción de orden de SATCF y SATSRC, pero el problema queda fuera de
+las subclases con vacío de la intersección polinomial conocidas.  Aun así, ese
+vacío se decide al enumerar las cadenas del autómata y reconocer cada una con la
+gramática de consistencia, pero en tiempo exponencial y con los dos formalismos
+por separado. Falta, entonces, una representación de esa intersección sobre la
+que estudiar su vacío en un solo formalismo.
+
+Teniendo en cuenta lo anterior, surge la siguiente pregunta:
+¿es posible expresar la intersección de una gramática de concatenación de
+rango con un lenguaje regular finito mediante una sola gramática de
+concatenación de rango, sobre la que estudiar el vacío que decide el SAT?
+
+El objeto de estudio de este trabajo es la resolución del SAT mediante
+formalismos de la teoría de lenguajes; dentro de ella, el campo de acción
+es el vacío de la intersección de una gramática de concatenación de rango
+con un lenguaje regular finito.
+
+El objetivo general de este trabajo es estudiar el vacío de la
+intersección de una gramática de concatenación de rango con un lenguaje
+regular finito como marco para \cambio{el}{la solución del} SAT, y construir una representación de
+esa intersección sobre la que abordar dicho \cambio{vacio}{problema}.
+
+Para alcanzar ese objetivo \agregaesto{general} se plantean los siguientes objetivos
+específicos:
+\begin{itemize}
+  \item \cambio{Revisar}{¿Estudiar?} las gramáticas de concatenación de rango y los
+    antecedentes del SAT abordado mediante formalismos de la teoría de
+    lenguajes.
+  \item \cambio{Dar}{Diseñar} un algoritmo que decida el vacío de la intersección de una
+    gramática de concatenación de rango con un lenguaje regular finito y
+    caracterizar su costo.
+      \item Modelar el SAT como \comment{ese vacío}{¿qué vacío?}, asociando a
+    cada fórmula un autómata booleano y \queesesto{una gramática de consistencia}.
+      \item Construir la gramática producto que reconoce \comment{la
+      intersección}{¿qué intersección?}, demostrar su correctitud y caracterizar
+    su tamaño y el costo de construirla.
+\end{itemize}
+
+La propuesta de solución parte de un algoritmo de fuerza bruta que decide el
+vacío de la intersección de una RCG con un lenguaje regular finito, y se
+caracteriza su costo. La consistencia se impone con una \comment{RCG de aridad
+  mínima}{cuando pongas el párrafo de introducción a las RCG, incluye ahí qué
+  significa eso de la aridad, y sienta las bases para que se pueda entender qué
+  significa \textit{aridad mínima}}, gracias a la no linealidad, y se construye
+la gramática producto, cuyo lenguaje es exactamente esa intersección.
+
+Como resultado, se obtiene un marco uniforme para el SAT en torno al vacío de la
+intersección de una RCG con un lenguaje regular finito. El algoritmo de decisión
+tiene costo exponencial en el peor caso. La gramática de consistencia tiene
+aridad uno para cualquier fórmula, \comment{a costa}{Creo que no se dice
+  exactamente así... Revisa esa redacción.} de perder la garantía directa de que
+el vacío sea polinomial. Se construye la gramática producto y se demuestra su
+correctitud; su tamaño puede ser exponencial, con muchos predicados y cláusulas
+no productivos.  Queda como problema abierto eliminarlos y analizar el costo de
+decidir el vacío sobre la gramática resultante.
+
+La estructura de este documento es la siguiente. En el
+capítulo~\ref{cap:preliminares} se presentan los preliminares de la
+teoría de lenguajes, los autómatas finitos, la complejidad computacional
+y el SAT. En el capítulo~\ref{cap:rcg-sat} se presentan las gramáticas de
+concatenación de rango y los antecedentes del SAT mediante formalismos de
+la teoría de lenguajes. En el capítulo~\ref{cap:vacio-interseccion-rcg-regular}
+se define el problema del vacío de la intersección de una RCG con un
+lenguaje regular finito y se da un algoritmo de decisión. En el
+capítulo~\ref{cap:modelacion-sat} se modela el SAT como ese vacío, con una
+RCG de consistencia para cualquier fórmula. En el
+capítulo~\ref{cap:interseccion} se construye la gramática producto y se
+caracterizan su tamaño y el costo de construirla. Por último, en las
+conclusiones y recomendaciones se recogen los resultados y las líneas de
+investigación que se proponen.
+
+\bibliographystyle{plain}
+\bibliography{../bib/referencias}
+
+\end{document}

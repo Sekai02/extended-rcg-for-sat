@@ -1,4 +1,4 @@
-\documentclass{report}
+\documentclass{article}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{amsmath}
@@ -6,26 +6,32 @@
 \usepackage{amsthm}
 \usepackage{float}
 \usepackage{tikz}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
 \usetikzlibrary{shapes}
 
 \theoremstyle{definition}
-\newtheorem{definicion}{Definición}[chapter]
+\newtheorem{definicion}{Definición}
 \theoremstyle{plain}
-\newtheorem{teorema}{Teorema}[chapter]
-\newtheorem{lema}{Lema}[chapter]
+\newtheorem{teorema}{Teorema}
+\newtheorem{lema}{Lema}
+\theoremstyle{remark}
+\newtheorem{ejemplo}{Ejemplo}
+\input{../word-comments}
+
 
 \begin{document}
 
-\chapter{Preliminares}
+% \chapter{Preliminares}
 \label{cap:preliminares}
 
 En este capítulo se presentan las definiciones y conceptos que serán
-usados en el resto del trabajo. En la
-sección~\ref{sec:teoria-lenguajes} se introducen las nociones
-básicas de la teoría de lenguajes. Después, en la
-sección~\ref{sec:automatas}, se presentan los autómatas finitos. Por
-último, en las secciones~\ref{sec:complejidad} y~\ref{sec:sat}, se
-introduce la complejidad computacional y se presenta el problema de la
+usados en el resto del trabajo. \quitaesto{Primero,} en la
+sección~\ref{sec:teoria-lenguajes}, se introducen las nociones
+básicas de la teoría de lenguajes\quitaesto{: alfabetos, cadenas, lenguajes,
+  gramáticas y la jerarquía de Chomsky}\comment{}{la razón por la que te digo que quites esto es porque ya lo pones abajo en la introducción de la sección}. Después, en la
+sección~\ref{sec:automatas}, se \comment{presenta el autómata finito}{así escrito parecería que solo hay UN autómata finito XD, mejor ponlo en plural}. Por último,
+en las secciones~\ref{sec:complejidad} y~\ref{sec:sat}, se introduce
+la complejidad computacional y se presenta el problema de la
 satisfacibilidad booleana con sus variantes polinomiales.
 
 \section{Teoría de Lenguajes}
@@ -37,8 +43,9 @@ se organiza en tres partes. Primero se introducen los conceptos de
 alfabeto, cadena y lenguaje, junto con los problemas de la palabra y
 del vacío. Después se definen las gramáticas, un mecanismo que permite
 describir lenguajes formales. Para finalizar se presenta la jerarquía
-de Chomsky, que clasifica los lenguajes formales según las gramáticas que
-los generan.
+de Chomsky, que clasifica los lenguajes formales según las
+restricciones en \queesesto{las reglas de producción de las gramáticas que los
+  generan}.
 
 \subsection{Conceptos básicos}
 
@@ -47,17 +54,16 @@ cadena y lenguaje. Un \textbf{alfabeto}, denotado como $\Sigma$, es un
 conjunto finito y no vacío de símbolos. Una \textbf{cadena} es una
 sucesión finita de símbolos del alfabeto. Un \textbf{lenguaje} es un
 conjunto de cadenas definido sobre un alfabeto. Por ejemplo, el alfabeto
-$\Sigma = \{0, 1\}$ está formado por los símbolos $0$ y $1$; algunas
-cadenas sobre este alfabeto son $11$ y $101$, y un lenguaje sobre él es el
+$\Sigma = \{0, 1\}$ está formado por los símbolos $0$ y $1$; \comment{$11$ y $101$
+son cadenas sobre el alfabeto $\Sigma$}{esto mejor escribelo al revés `algunas cadenas sobre este alfabeto son fulano y fulano' para que no tengas los 1s pegados ahí}, y un \quitaesto{ejemplo de} lenguaje \agregaesto{sobre este alfabeto} es el
 conjunto de cadenas formadas por $0$ y $1$ que terminan en $1$.
 
-La \textbf{longitud} de una cadena $w$, denotada $|w|$, es la cantidad de
-símbolos que la componen. El símbolo $\varepsilon$ representa la
-\textbf{cadena vacía}, que no tiene símbolos, de modo que
-$|\varepsilon| = 0$.
+\comment{El símbolo $\varepsilon$ representa la \textbf{cadena vacía}. La
+\textbf{longitud} de una cadena $w$, denotada $|w|$, es la cantidad de
+símbolos que la componen; en particular, $|\varepsilon| = 0$}{creo que deberías hablar de la longitud primero, o decir que la cadena vacía no tiene símbolos. De lo contrario el lector se entera de lo que es la cadena vacía una vez llega al final del párrafo}.
 
 Dadas dos cadenas $w_1$ y $w_2$, la \textbf{concatenación} $w_1 w_2$
-es la cadena formada por los símbolos de $w_1$ seguidos de los símbolos
+se obtiene al \comment{escribir}{no me gusta esta palabra, escribir es una operación o algo así en teoría de lenguajes?} los símbolos de $w_1$ seguidos de los símbolos
 de $w_2$. Dada una cadena $w$ y un entero $n \ge 0$, por convenio
 $w^n$ representa la cadena resultante de concatenar $w$ un total de
 $n$ veces, con $w^0 = \varepsilon$.
@@ -74,22 +80,22 @@ posteriores: determinar si una cadena pertenece a un lenguaje y
 determinar si un lenguaje contiene algún elemento.
 
 \begin{definicion}
-El \textbf{problema de la palabra} consiste en determinar si una cadena
-pertenece a un lenguaje dado.
+  El \textbf{problema de la palabra} consiste en determinar si una cadena
+  pertenece a un lenguaje dado.
 \end{definicion}
 
-Por ejemplo, para el lenguaje $L$ de las cadenas binarias que terminan
-en $0$, el problema de la palabra consiste en decidir, dada una cadena
-$w$, si $w \in L$; así, $1100 \in L$ y $1101 \notin L$.
+\comment{Por ejemplo, dado el lenguaje $L$ de las cadenas binarias que terminan
+en $0$, el problema de la palabra para la cadena $1100100$ consiste en
+determinar si $1100100 \in L$.}{aquí me parece que esto no está bien, el problema de la palabra es un problema para un lenguaje dado, o sea, `dada una cadena \textbf{arbitraria} w y un lenguaje L, determinar si w pertenece a L' no esta bien que digas `dada esta cadena específica w y un lenguaje L, determinar si w pertenece a L', eso no es un ejemplo del problema de la palabra (me parece)}
 
 \begin{definicion}
-El \textbf{problema del vacío} consiste en determinar si un lenguaje
-es vacío.
+  El \textbf{problema del vacío} consiste en determinar si un lenguaje
+  es vacío.
 \end{definicion}
 
 Por ejemplo, el problema del vacío para el lenguaje formado por los
 números pares mayores que $5$ que además son primos, consiste en
-decidir si tal lenguaje tiene algún elemento.
+decidir si tal lenguaje tiene algún elemento. \agregaesto{NUEVO PARRAFO}
 
 Los antecedentes del
 presente trabajo, que se revisan en el capítulo~\ref{cap:rcg-sat},
@@ -97,7 +103,8 @@ emplean el problema del vacío para decidir la satisfacibilidad de
 fórmulas booleanas, problema que se presenta en la
 sección~\ref{sec:sat}.
 
-A continuación se presentan las gramáticas, un mecanismo
+\quitaesto{Una vez introducidos los conceptos básicos y los dos problemas
+  anteriores,} a continuación se presentan las gramáticas, un mecanismo
 que permite describir los elementos de un lenguaje mediante reglas de
 producción.
 
@@ -109,28 +116,27 @@ un mecanismo que permite generar los elementos de un lenguaje a partir
 de un símbolo inicial y un conjunto de reglas de producción.
 
 \begin{definicion}
-Una \textbf{gramática} es un formalismo utilizado para describir
-lenguajes formales. Se define como una $4$-tupla
-\[
-  G = (N, \Sigma, P, S),
-\]
-donde
-\begin{itemize}
-  \item $N$ es un conjunto finito de símbolos llamados
-    \textbf{símbolos no terminales};
-  \item $\Sigma$ es un conjunto finito de símbolos llamados
-    \textbf{símbolos terminales}, que constituyen el alfabeto sobre el
-    que se construyen las cadenas del lenguaje. Se debe cumplir que
-    $N \cap \Sigma = \emptyset$;
-  \item $P$ es un conjunto finito de \textbf{reglas de producción} de la
-    forma
-    \[
-      \alpha \to \beta,
-      \quad \text{con } \alpha \in (N \cup \Sigma)^* \setminus \Sigma^*
-      \text{ y } \beta \in (N \cup \Sigma)^*;
-    \]
-  \item $S \in N$ es el \textbf{símbolo inicial} de la gramática.
-\end{itemize}
+  Una \textbf{gramática} es un formalismo utilizado para describir
+  lenguajes formales. Se define como una $4$-tupla
+  \[
+    G = (N, \Sigma, P, S),
+  \]
+  donde
+  \begin{itemize}
+    \item $N$ es un conjunto finito de símbolos llamados
+          \textbf{símbolos no terminales};
+    \item $\Sigma$ es un conjunto finito de símbolos llamados
+          \textbf{símbolos terminales}, que constituyen el alfabeto sobre el
+          que se construyen las cadenas del lenguaje. Se debe cumplir que
+          $N \cap \Sigma = \emptyset$;
+    \item $P$ es un conjunto finito de \textbf{reglas de producción} de la
+          forma
+          \comment{\[
+            \alpha \to \beta,
+            \quad \text{con } \alpha, \beta \in (N \cup \Sigma)^*;
+          \]}{me parece que $\alpha$ no es terminal, o sea, $\alpha \in (N \cup \Sigma)^* - \Sigma^*$}
+    \item $S \in N$ es el \textbf{símbolo inicial} de la gramática.
+  \end{itemize}
 \end{definicion}
 
 Una \textbf{derivación} en la gramática consiste en seleccionar una
@@ -156,7 +162,9 @@ de una o más derivaciones desde $S$ hasta $w$. En el ejemplo anterior,
 $L(G) = \{a^n b^n \mid n \ge 1\}$.
 
 Una vez presentadas las gramáticas, a continuación se expone la
-jerarquía de Chomsky.
+jerarquía de Chomsky, que clasifica los lenguajes formales según las
+restricciones en las reglas de producción de las gramáticas que los
+generan.
 
 \subsection{Jerarquía de Chomsky}
 
@@ -166,10 +174,10 @@ producción de las gramáticas que los generan.
 
 El primer tipo son las \textbf{gramáticas irrestrictas}, que no imponen
 restricciones sobre sus reglas de producción. Cada regla tiene la forma
-$\alpha \to \beta$, donde $\alpha \in (N \cup \Sigma)^* \setminus \Sigma^*$
-y $\beta \in (N \cup \Sigma)^*$. Todo lenguaje generado por una gramática
+\comment{$\alpha \to \beta$, donde $\alpha, \beta \in (N \cup \Sigma)^*$}{lo mimso con respecto a $\alpha$ aquíx} y
+$\alpha \neq \varepsilon$. Todo lenguaje generado por una gramática
 irrestricta se denomina \textbf{lenguaje recursivamente
-enumerable}~\cite{hopcroft2006introduction}.
+  enumerable}~\cite{hopcroft2006introduction}.
 
 El segundo tipo son las \textbf{gramáticas dependientes del contexto}.
 En estas, cada regla tiene la forma $\alpha A \gamma \to \alpha \beta \gamma$,
@@ -223,12 +231,12 @@ libres del contexto es más expresiva que la clase de los lenguajes
 regulares~\cite{hopcroft2006introduction}.
 
 La diferencia entre las clases de lenguajes de la jerarquía de Chomsky
-se puede ilustrar con una familia\footnote{El término "familia de
-lenguajes" se utiliza aquí en un sentido distinto al de "clase de
-lenguajes" definido en el párrafo anterior: se refiere a una colección
-de lenguajes que se obtiene al variar un parámetro, en este caso
-los lenguajes $L_{\mathrm{copy}}^k$ al variar $k$, y no a una clase
-de la jerarquía de Chomsky.} de lenguajes derivada del lenguaje Copy.
+se puede ilustrar con una \comment{familia}{por que se utiliza de forma diferente el término? las familias de lenguajes son cojuntos de lenguajes, porque los lenguajes generados por gramáticas son clases y no familias también?} \footnote{El término "familia de
+  lenguajes" se utiliza aquí en un sentido distinto al de "clase de
+  lenguajes" definido en el párrafo anterior: se refiere a una colección
+  de lenguajes que se obtiene al variar un parámetro ---en este caso,
+  los lenguajes $L_{\mathrm{copy}}^k$ al variar $k$--- y no a una clase
+  de la jerarquía de Chomsky.} de lenguajes derivada del lenguaje Copy.
 Dado un alfabeto $\Sigma$, para cada entero $k \ge 1$ se define el
 lenguaje
 \[
@@ -248,18 +256,18 @@ en la figura~\ref{fig:chomsky}: una clase está contenida en otra
 cuando la elipse que la representa aparece dentro de la otra.
 
 \begin{figure}[H]
-\centering
-\begin{tikzpicture}[font=\small]
-  \node[above, ellipse, minimum height=2em, minimum width=6em,  draw] (a) {Regulares};
-  \node[above, ellipse, minimum height=4em, minimum width=12em, draw] (b) {};
-  \node[above, ellipse, minimum height=6em, minimum width=18em, draw] (c) {};
-  \node[above, ellipse, minimum height=8em, minimum width=24em, draw] (d) {};
-  \path (a.north) node[above] {Libres del contexto}
-        (b.north) node[above] {Dependientes del contexto}
-        (c.north) node[above] {Recursivamente enumerables};
-\end{tikzpicture}
-\caption{Jerarquía de Chomsky.}
-\label{fig:chomsky}
+  \centering
+  \begin{tikzpicture}[font=\small]
+    \node[above, ellipse, minimum height=2em, minimum width=6em,  draw] (a) {Regulares};
+    \node[above, ellipse, minimum height=4em, minimum width=12em, draw] (b) {};
+    \node[above, ellipse, minimum height=6em, minimum width=18em, draw] (c) {};
+    \node[above, ellipse, minimum height=8em, minimum width=24em, draw] (d) {};
+    \path (a.north) node[above] {Libres del contexto}
+    (b.north) node[above] {Dependientes del contexto}
+    (c.north) node[above] {Recursivamente enumerables};
+  \end{tikzpicture}
+  \caption{Jerarquía de Chomsky.}
+  \label{fig:chomsky}
 \end{figure}
 
 Cada clase de la jerarquía de Chomsky admite un modelo matemático,
@@ -269,21 +277,24 @@ sección~\ref{sec:automatas} se define el autómata finito.
 \section{Autómatas finitos}
 \label{sec:automatas}
 
-De los modelos asociados a las clases de la jerarquía, en este trabajo
-solo se emplea el autómata finito, que reconoce los lenguajes
+\comment{Los autómatas correspondientes a las cuatro clases de la jerarquía de
+Chomsky son: la máquina de Turing para los lenguajes recursivamente
+enumerables, la máquina de Turing linealmente acotada para los
+lenguajes dependientes del contexto, el autómata de pila para los
+lenguajes libres del contexto}{por que mencionas a toda esta gente y luego solo defines los autómatas finitos?} y el autómata finito para los lenguajes
 regulares~\cite{hopcroft2006introduction}.
 
 \begin{definicion}
-Un \textbf{autómata finito}~\cite{hopcroft2006introduction} se define
-como una $5$-tupla
-\[
-  A = (Q, \Sigma, \delta, q_0, F),
-\]
-donde $Q$ es un conjunto finito de \textbf{estados}, $\Sigma$ es un
-alfabeto llamado \textbf{alfabeto de entrada},
-$\delta : Q \times \Sigma \to Q$ es una \textbf{función de transición},
-$q_0 \in Q$ es el \textbf{estado inicial} y $F \subseteq Q$ es el
-conjunto de \textbf{estados de aceptación}.
+  Un \textbf{autómata finito}~\cite{hopcroft2006introduction} se define
+  como una $5$-tupla
+  \[
+    A = (Q, \Sigma, \delta, q_0, F),
+  \]
+  donde $Q$ es un conjunto finito de \textbf{estados}, $\Sigma$ es un
+  alfabeto llamado \textbf{alfabeto de entrada},
+  $\delta : Q \times \Sigma \to Q$ es una \textbf{función de transición},
+  $q_0 \in Q$ es el \textbf{estado inicial} y $F \subseteq Q$ es el
+  conjunto de \textbf{estados de aceptación}.
 \end{definicion}
 
 El autómata comienza en el estado inicial $q_0$ y lee los símbolos de la
@@ -301,8 +312,8 @@ del vacío en los formalismos estudiados.
 \section{Complejidad computacional}
 \label{sec:complejidad}
 
-Esta sección se organiza en tres partes. Primero se presenta la
-notación asintótica, después se introduce la reducción polinomial.
+\comment{Esta sección}{una de las cosas que me señaló el oponente del documento, esra que presentaba de forma informal las cosas de complejidad. Te sugiero que definas formalmente lo que es un problema, una instancia, un problema de decisión, un certifiado, verificador polinomial, etc. para que no te pase lo mismo} se organiza en tres partes. Primero se presenta la
+notación asintótica\quitaesto{.}\agregaesto{COMA} Después se introduce la reducción polinomial.
 Por último se definen las clases de problemas $P$, $NP$ y
 $NP$-Completo.
 
@@ -314,11 +325,11 @@ la dificultad de un problema según el tiempo de ejecución de los
 algoritmos que lo resuelven.
 
 \begin{definicion}
-Una función $g(n)$ pertenece a $O(f(n))$ si existen constantes positivas
-$c$ y $n_0$ tales que
-\[
-  g(n) \le c \cdot f(n) \quad \text{para todo } n \ge n_0.
-\]
+  Una función $g(n)$ pertenece a $O(f(n))$ si existen constantes positivas
+  $c$ y $n_0$ tales que
+  \[
+    g(n) \le c \cdot f(n) \quad \text{para todo } n \ge n_0.
+  \]
 \end{definicion}
 
 La definición anterior expresa que $g(n)$ está acotada superiormente
@@ -326,7 +337,7 @@ por un múltiplo constante de $f(n)$ para $n$ suficientemente grande.
 
 El tiempo de ejecución de un algoritmo es una función del tamaño $n$
 de su entrada. Se dice que un algoritmo tiene \textbf{tiempo
-polinomial} si esta función pertenece a $O(n^k)$ para alguna
+  polinomial} si esta función pertenece a $O(n^k)$ para alguna
 constante $k$. La \textbf{complejidad computacional} de un problema
 se define como el tiempo de ejecución, en el peor caso, del algoritmo
 más eficiente que lo resuelve~\cite{hopcroft2006introduction}.
@@ -340,16 +351,17 @@ relacionar la dificultad entre problemas.
 
 Los conceptos que se introducen a continuación, y los de la próxima
 subsección, se aplican a problemas de decisión. Un \textbf{problema
-de decisión} es un problema cuya respuesta para cada
-instancia\footnote{Una instancia es una entrada del problema.} es sí
-o no.
+  de decisión} es un problema cuya respuesta para cada instancia es sí
+o \comment{no}{lo de la nota al pie, no me queda claro, yo mejor quitaría la nota al pie, al final no te hace falta hablar de todos los problemas, solo los de decisión. La nota al pie crea más ruido del que quita}.\footnote{Todo problema computacional admite una reformulación
+  equivalente como problema de decisión~\cite{hopcroft2006introduction};
+  trabajar con este tipo de problemas simplifica el análisis.}
 
 \begin{definicion}
-Una \textbf{reducción polinomial} de un problema de decisión $A$ a un
-problema de decisión $B$ es una función $f$ que se calcula en tiempo
-polinomial y asigna a cada entrada $x$ de $A$ una entrada $f(x)$ de
-$B$, tal que $A$ responde sí sobre $x$ si y solo si $B$ responde sí
-sobre $f(x)$~\cite{hopcroft2006introduction}.
+  Una \textbf{reducción polinomial} de un problema de decisión $A$ a un
+  problema de decisión $B$ es una función $f$ que se calcula en tiempo
+  polinomial y asigna a cada entrada $x$ de $A$ una entrada $f(x)$ de
+  $B$, tal que $A$ responde sí sobre $x$ si y solo si $B$ responde sí
+  sobre $f(x)$~\cite{hopcroft2006introduction}.
 \end{definicion}
 
 La existencia de una reducción polinomial de $A$ a $B$ significa que
@@ -366,19 +378,18 @@ resolverlos o verificar sus soluciones. En este trabajo se emplean las
 clases $P$, $NP$ y $NP$-Completo.
 
 \begin{definicion}
-Un problema pertenece a la clase $\boldsymbol{P}$ si se puede resolver
-en tiempo polinomial~\cite{hopcroft2006introduction}.
+  Un problema pertenece a la clase $\boldsymbol{P}$ si se puede resolver
+  en tiempo polinomial~\cite{hopcroft2006introduction}.
 \end{definicion}
 
 Por ejemplo, el problema 2-SAT, que se presenta en la
 sección~\ref{sec:sat-variantes}, pertenece a $P$.
 
 \begin{definicion}
-Un problema pertenece a la clase $\boldsymbol{NP}$ si existe un
-algoritmo que, dada una instancia del problema y una solución
-candidata\footnote{Este término también se conoce en la literatura
-como certificado.}, verifica en tiempo polinomial si la solución
-candidata es correcta~\cite{hopcroft2006introduction}.
+  Un problema pertenece a la clase $\boldsymbol{NP}$ si existe un
+  algoritmo que, dada una instancia del problema y una solución
+  candidata, verifica en tiempo polinomial si la solución candidata es
+  correcta~\cite{hopcroft2006introduction}.
 \end{definicion}
 
 Por ejemplo, el problema SAT, que se presenta en la
@@ -387,15 +398,15 @@ valores a las variables de una fórmula booleana, un algoritmo
 polinomial determina si la asignación satisface la fórmula.
 
 \begin{definicion}
-Un problema pertenece a la clase $\boldsymbol{NP}$\textbf{-Completo}
-si pertenece a $NP$ y, además, cualquier problema en $NP$ se puede
-reducir polinomialmente a él~\cite{hopcroft2006introduction}.
+  Un problema pertenece a la clase $\boldsymbol{NP}$\textbf{-Completo}
+  si pertenece a $NP$ y, además, cualquier problema en $NP$ se puede
+  reducir polinomialmente a él~\cite{hopcroft2006introduction}.
 \end{definicion}
 
 El SAT del ejemplo anterior es también $NP$-Completo.
 
 La pregunta de si $P = NP$ o $P \neq NP$ permanece sin resolver y
-constituye uno de los problemas abiertos de la teoría de la
+constituye uno de los problemas abiertos \comadreja{centrales} de la teoría de la
 computación~\cite{hopcroft2006introduction}. El conjunto de problemas
 $NP$-Completo proporciona una base para el estudio de esta pregunta:
 si algún problema $NP$-Completo se puede resolver en tiempo
@@ -424,45 +435,46 @@ booleanas, literales, cláusulas y fórmulas en forma normal conjuntiva.
 
 \begin{itemize}
   \item \textbf{Variables booleanas:} una variable booleana es una
-    variable que puede tomar uno de dos valores: verdadero o
-    falso.
+        variable que puede tomar uno de dos valores: \textit{verdadero} o
+        \textit{falso}.
   \item \textbf{Literales:} un literal es una variable booleana o su
-    negación. Formalmente, si $x$ es una variable booleana, entonces
-    $x$ y $\neg x$ son literales, donde $\neg x$ representa la
-    negación de $x$. Un literal toma los valores verdadero o
-    falso según la asignación de valores a las variables booleanas.
+        negación. Formalmente, si $x$ es una variable booleana, entonces
+        $x$ y $\neg x$ son literales, donde $\neg x$ representa la
+        negación de $x$. Un literal toma los valores \textit{verdadero} o
+        \textit{falso} según la asignación de valores a las variables.
   \item \textbf{Cláusulas:} una cláusula es una disyunción, con el
-    operador \textsc{or}, de uno o más literales. Por ejemplo, la cláusula
-    $(x \vee \neg y \vee z)$ es una disyunción de tres literales: $x$,
-    $\neg y$ y $z$. Una cláusula es verdadera si al menos uno de sus
-    literales es verdadero; es falsa si todos sus literales son falsos.
+        operador \textsc{or}, de uno o más literales. Por ejemplo, la cláusula
+        $(x \vee \neg y \vee z)$ es una disyunción de tres literales: $x$,
+        $\neg y$ y $z$. Una cláusula es verdadera si al menos uno de sus
+        literales es verdadero; es falsa si todos sus literales son falsos.
   \item \textbf{Fórmulas en forma normal conjuntiva:} una fórmula
-    booleana en forma normal conjuntiva, abreviada CNF, es una
-    conjunción con el operador \textsc{and} de cláusulas. Por ejemplo,
-    \[
-      (x \vee \neg y \vee z) \wedge (\neg x \vee y) \wedge
-      (x \vee \neg z)
-    \]
-    es una fórmula en CNF con tres cláusulas y tres variables booleanas.
+        booleana en forma normal conjuntiva, abreviada CNF, es una
+        conjunción con el operador \textsc{and} de cláusulas. Por ejemplo,
+        \[
+          (x \vee \neg y \vee z) \wedge (\neg x \vee y) \wedge
+          (x \vee \neg z)
+        \]
+        es una fórmula en CNF con tres cláusulas y tres variables.
 \end{itemize}
 
 Una \textbf{interpretación} de una fórmula booleana es una asignación
-de valores verdadero o falso a cada una de sus
-variables booleanas.
-
-Una fórmula booleana es \textbf{satisfacible} si es verdadera bajo
-alguna de sus interpretaciones.
+de valores \textit{verdadero} o \textit{falso} a cada una de sus
+variables. Toda fórmula booleana se puede transformar, en tiempo
+polinomial, en una fórmula en CNF que es \comment{satisfacible}{que es esto? no lo has definido todavía. Te sugiero que cambies el orden de las cosas} si y solo si la
+fórmula original lo es~\cite{hopcroft2006introduction}. Por esta
+razón, en el resto del trabajo se asume sin pérdida de generalidad
+que toda fórmula booleana está en CNF.
 
 \begin{definicion}
-El problema de la \textbf{satisfacibilidad booleana}, o SAT, consiste
-en determinar si una fórmula booleana es satisfacible.
+  El problema de la \textbf{satisfacibilidad booleana}, o SAT, consiste
+  en determinar si existe una asignación de valores \textit{verdadero} o
+  \textit{falso} a las variables de una fórmula booleana, tal que la
+  fórmula completa sea verdadera.
 \end{definicion}
 
-Toda fórmula booleana se puede transformar, en tiempo polinomial, en
-una fórmula en CNF que es satisfacible si y solo si la fórmula
-original lo es~\cite{hopcroft2006introduction}. Por esta razón, en el
-resto del trabajo se asume sin pérdida de generalidad que toda
-fórmula booleana está en CNF.
+Una fórmula booleana \comment{en CNF}{para las fórmulas arbitrarias no existe este concepto?} es \textbf{satisfacible} si existe una
+asignación de valores a las variables tal que todas las cláusulas de la
+fórmula sean verdaderas simultáneamente.
 
 Una vez definido el problema y sus elementos, a continuación se sitúa
 al SAT dentro de la clasificación de complejidad y se describen sus
@@ -473,12 +485,12 @@ variantes polinomiales.
 
 El SAT es el primer problema demostrado como $NP$-Completo y juega un
 rol central en la teoría de la complejidad computacional. El SAT pertenece a la clase
-$NP$ porque, dada una asignación de valores a las variables booleanas de la
+$NP$ porque, dada una asignación de valores a las variables de la
 fórmula, se puede verificar en tiempo polinomial si la asignación
 satisface la fórmula. La demostración de que el SAT es $NP$-Completo
 fue una de las contribuciones principales de Stephen Cook en
-1971, y marcó el inicio de la teoría de la
-$NP$-Completitud~\cite{cook1971}.
+1971~\cite{cook1971}, y marcó el inicio de la teoría de la
+$NP$-Completitud.
 
 Un SAT en el que cada cláusula tiene exactamente $n$ literales distintos
 se denomina $n$-SAT. Para el problema 2-SAT existe una solución
@@ -486,10 +498,9 @@ polinomial que determina si la fórmula booleana es satisfacible o no
 \cite{halim2013cp3}. Para el problema 3-SAT no se conoce ningún
 algoritmo polinomial que permita determinar si una fórmula booleana es
 satisfacible o no~\cite{hopcroft2006introduction}. Toda fórmula booleana
-del problema $n$-SAT se puede reducir a una fórmula del problema
-3-SAT que es satisfacible si y solo si la fórmula original lo es, por
-lo que SAT y 3-SAT son equivalentes en términos de complejidad
-computacional~\cite{hopcroft2006introduction}.
+del problema $n$-SAT se puede reducir a una fórmula \comment{equivalente}{quivalente o equisatisfacible?} del
+problema 3-SAT, por lo que SAT y 3-SAT son equivalentes en términos de
+complejidad computacional~\cite{hopcroft2006introduction}.
 
 Aunque no se conoce algoritmo polinomial para resolver el SAT general,
 existen variantes particulares que sí admiten solución en tiempo polinomial,
@@ -516,8 +527,8 @@ Las variantes anteriores se obtienen al restringir la forma de las
 cláusulas. Otra forma de ampliar las subclases del SAT con solución en
 tiempo polinomial consiste en modelar el problema mediante formalismos
 de la teoría de lenguajes. En este capítulo se introdujeron las nociones
-en que se apoya ese enfoque: la teoría de lenguajes, los autómatas
-finitos, la complejidad computacional y el problema SAT. En el próximo capítulo
+en que se apoya ese enfoque: la teoría de lenguajes, \comment{el autómata finito}{solo un autómata finito?} y,
+la complejidad computacional y el problema SAT. En el próximo capítulo
 se presentan las gramáticas de concatenación de rango y los antecedentes
 en el estudio del SAT con teoría de lenguajes.
 

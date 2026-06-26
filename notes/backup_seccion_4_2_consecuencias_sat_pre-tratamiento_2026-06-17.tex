@@ -1,0 +1,79 @@
+% Backup de la sección 4.2 (Consecuencias para el SAT y subclases tratables)
+% del capítulo 4 (capitulo_4_modelacion_sat.tex), tomado ANTES de darle tratamiento.
+% Fecha: 2026-06-17. Solo backup; no editar aquí.
+
+\section{Consecuencias para el SAT y subclases tratables}
+\label{sec:lectura-sat}
+
+Con la enumeración del capítulo~\ref{cap:vacio-interseccion-rcg-regular}
+se decide esa satisfacibilidad: se
+recorren las cadenas aceptadas por el autómata booleano y se aplica a
+cada una el reconocimiento de la RCG de consistencia. Las dos partes
+de la instancia tienen costo polinomial. El autómata booleano tiene
+$O(n^2)$ estados~\cite{fernandezarias2007}, con $n$ la cantidad de
+ocurrencias de variables booleanas en la fórmula. La gramática
+$G_{\mathrm{cons}}$ tiene aridad uno y tamaño $O(nm)$, contado en
+símbolos, con $m$ la cantidad de variables booleanas distintas: dos
+cláusulas de longitud $O(n)$ por variable booleana, más las $O(n)$
+cláusulas de los predicados $L_j$. El reconocimiento con
+$G_{\mathrm{cons}}$ es polinomial: cada cláusula admite a lo sumo una sustitución de rango
+para cada cadena, porque los rangos de las variables $W_k$ quedan
+determinados por las longitudes $g_k$, y esa sustitución se comprueba
+en tiempo lineal; el reconocimiento de una cadena de longitud $n$
+cuesta entonces $R_{G_{\mathrm{cons}}}(n) = O(nm)$.
+
+Toda cadena aceptada por el autómata booleano tiene longitud $n$, de
+modo que cada llamada a $\proc{RCG-Recognize}$ cuesta $O(nm)$. Con
+$|Q| = O(n^2)$, la cota de la
+subsección~\ref{sec:complejidad-algoritmo} queda en
+\[
+  O\bigl( n^2 + p(A)\,(n^2 + nm) \bigr) = O\bigl( n^2 + p(A)\,n^2 \bigr),
+\]
+pues $m \le n$. El factor dominante es $p(A)$, la cantidad de cadenas
+aceptadas por el autómata booleano, que para una fórmula con muchas
+interpretaciones verdaderas bajo el supuesto de independencia es del
+orden de $2^n$. La dificultad no está entonces en el tamaño de la
+instancia ni en el reconocimiento, sino en el vacío: decidir si
+$L(G_{\mathrm{cons}}) \cap L(A)$ es vacío es el SAT, y para una RCG
+con un autómata finito acíclico ese problema es
+NP-completo~\cite{bertsch2001rcg}.
+
+En SATCF y SATSRC ese costo no aparece, y la razón no es una enumeración
+más hábil. En esos enfoques el vacío se decide desde el formalismo: el
+de una gramática libre del contexto y el de una sRCG se deciden en
+tiempo polinomial, sin recorrer las
+interpretaciones~\cite{fernandezarias2007,aguileralopez2016}. Para las
+RCG no hay ese procedimiento directo: con la enumeración el problema se
+decide, pero el costo es el número de interpretaciones, no una propiedad
+del formalismo.
+
+La no-linealidad tiene dos efectos. Por un lado, con la igualdad
+entre las subcadenas en que aparece una misma variable booleana se amplía la
+clase de fórmulas cuya consistencia se expresa, más allá del orden de
+concatenación de rango simple de las sRCG. Por otro, por esa misma
+igualdad el vacío de la intersección deja de ser polinomial.
+
+Quedan entonces dos vías hacia una extensión tratable de SATSRC. En
+la primera se restringen las fórmulas: si el autómata booleano tiene
+una cantidad de caminos aceptantes acotada por un polinomio en $n$,
+la cota anterior es polinomial y el algoritmo de enumeración
+decide la satisfacibilidad en tiempo polinomial, por lo que ya esa
+propuesta queda cerrada.
+
+En la segunda vía se restringe la gramática de consistencia a una
+subclase no lineal de las RCG, que debe conservar parte de la
+expresividad que la no-linealidad añade sobre las sRCG y admitir un
+procedimiento polinomial para el vacío de la intersección que no
+recorra las interpretaciones. Con esta vía también se resuelve solo
+una clase de fórmulas, aquellas cuyas cadenas consistentes se
+reconocen por una gramática de la subclase: igual que en SATCF y
+SATSRC, la clase de fórmulas queda delimitada por el formalismo de la
+gramática de consistencia. Para hallar esa subclase hace falta una
+representación simbólica de la intersección, de tamaño polinomial
+respecto a la fórmula, sobre la que estudiar con qué restricciones el
+vacío se vuelve tratable.
+
+En el capítulo siguiente se construye esa representación: una gramática
+producto entre una RCG y un lenguaje regular. Con ella el problema
+general no se vuelve polinomial, pero se obtiene el objeto sobre el que
+estudiar las subclases no lineales con vacío polinomial.
